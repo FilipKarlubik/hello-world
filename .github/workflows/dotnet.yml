@@ -20,10 +20,10 @@ jobs:
           5.0.x
     - name: Restore dependencies
       run: dotnet restore
-      working-directory: ./WebAPI
+      working-directory: ./Eucyon-Tribes
     - name: Build
       run: dotnet build --no-restore
-      working-directory: ./WebAPI
+      working-directory: ./Eucyon-Tribes
     - name: Test
       run: dotnet test --no-build --verbosity normal
-      working-directory: ./WebAPI
+      working-directory: ./Eucyon-Tribes
