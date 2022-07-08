@@ -7,5 +7,10 @@ namespace WebAPITests
         {
              Assert.Equal(1, 1);
         }
+        [Fact]
+        public void Test()
+        {
+            Assert.Equal(1, 0);
+        }
     }
 }
