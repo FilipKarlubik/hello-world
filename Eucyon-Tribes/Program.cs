@@ -19,7 +19,14 @@ if (env.Equals("Development"))
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
-
+builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<IBuildingFactory, BuildingFactory>();
+builder.Services.AddTransient<IBuildingService, BuildingService>();
+builder.Services.AddTransient<IResourceFactory, ResourceFactory>();
+builder.Services.AddTransient<IKingdomFactory,KingdomFactory>();
+builder.Services.AddTransient<IArmyFactory,ArmyFactory>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IKingdomService, KingdomService>();
 
 var app = builder.Build();
 
