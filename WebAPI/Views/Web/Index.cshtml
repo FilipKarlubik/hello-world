@@ -1,0 +1,54 @@
+﻿@model dynamic
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Todos Store Base</title>
+</head>
+
+<h2>@ViewBag.Message</h2>
+<body>
+    <a href="/web/add">Add a new Todo</a>
+    <h3>Todos in Database</h3>
+    <div>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Done</th>
+                <th>Date</th>
+                <th>UserID</th>
+            </tr>
+        @foreach (var todo in Model.Todos)
+        {
+            <tr>
+                <td>@todo.Id</td>
+                <td>@todo.Title</td>
+                <td>@todo.IsDone</td>
+                <td>@todo.Date</td>
+                <td>@todo.UserID</td>
+           
+            </tr>
+        }
+        </table>
+    </div>
+    <h3>Users in Database</h3>
+    <div>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Name</td>
+            </tr>
+        }
+        </table>
+    </div>
+</body>
+</html>
