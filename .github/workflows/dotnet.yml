@@ -30,5 +30,4 @@ jobs:
       run: dotnet build --no-restore
       working-directory: ./Eucyon-Tribes
     - name: Test
-      run: dotnet test --no-build --verbosity minimal
-      working-directory: ./Eucyon-Tribes
+      run: dotnet test --no-build --verbosity minimal ./Eucyon-Tribes
