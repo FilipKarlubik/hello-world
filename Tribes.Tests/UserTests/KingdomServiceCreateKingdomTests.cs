@@ -84,18 +84,6 @@ namespace Tribes.Tests.UserTests
             Assert.Equal(expected, result.Message);
         }
 
-        [Fact]
-        public void KingdomCreateWithExistingCoordinates()
-        {
-            User user1 = db.Users.First();
-            User user2 = db.Users.Last();
-            World world = db.Worlds.First();
-            KingdomCreateRequestDTO request1 = new(user1.Id, "Kingdom1", world.Id, 10, 10);
-            KingdomCreateRequestDTO request2 = new(user2.Id, "Kingdom2", world.Id, 10, 10);
-            kingdomService.AddKingdomWithLocation(request1);
-            var result = kingdomService.AddKingdomWithLocation(request2);
-            var expected = "This Place has been occupied";
-            Assert.Equal(expected, result.Message);
-        }
+ 
     }
 }

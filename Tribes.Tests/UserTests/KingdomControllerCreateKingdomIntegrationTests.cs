@@ -18,18 +18,7 @@ namespace Tribes.Tests.UserTests
         {
         }
 
-        [Fact]
-        public async void Kingdom_create_by_valid_input()
-        {
-            var expected = new { Status = "Kingdom created" };
-            var response = await _client.PostAsync("/api/kingdomrestcontroller/kingdoms/with_location"
-                , JsonContent.Create(new KingdomCreateRequestDTO(1, "Kingdom1", 1, 10, 10)));
-            var body = response.Content.ReadAsStringAsync().Result;
-            var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
-
-            Assert.Equal(201, (int)response.StatusCode);
-            Assert.Equal(expected.Status, result["status"].ToString());
-        }
+      
 
         [Fact]
         public async void Kingdom_create_by_existing_coordinates()
