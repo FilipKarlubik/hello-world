@@ -1,9 +1,14 @@
 name: .NET
 
 on:
- 
-  pull_request:
+ push:
     branches: [ "master" ]
+ pull_request:
+    branches: [ "master" ]
+
+env:
+  TOKENKEY: ${{ secrets.TOKENKEY }}
+  SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
 
 jobs:
   build:
@@ -25,5 +30,5 @@ jobs:
       run: dotnet build --no-restore
       working-directory: ./Eucyon-Tribes
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity minimal
       working-directory: ./Eucyon-Tribes
