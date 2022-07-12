@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tribes.Tests.SeedData;
 
 namespace TribesTest
-{
+{ 
     public class IntegrationTests
     {
         protected readonly HttpClient _client;

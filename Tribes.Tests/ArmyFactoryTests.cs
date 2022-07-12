@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Tribes.Tests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class ArmyFactoryTests
     {
         ArmyFactory Factory;

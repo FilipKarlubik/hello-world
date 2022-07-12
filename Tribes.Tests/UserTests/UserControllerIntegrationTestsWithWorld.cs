@@ -10,6 +10,8 @@ using TribesTest;
 
 namespace Tribes.Tests.UserTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class UserControllerIntegrationTestsWithWorld : IntegrationTests
     {
         private static string Worlds = "userControllerTestWorlds1";
@@ -64,6 +66,18 @@ namespace Tribes.Tests.UserTests
             Assert.Equal(200, (int)response.StatusCode);
             Assert.Equal("New user Mrochta created", result["status"].ToString());
 
+        }
+
+        [Fact]
+        public async void User_info_by_existing_id()
+        {
+            var expected = "Klotilda";
+            var response = _client.GetAsync("users/2").Result;
+            var body = response.Content.ReadAsStringAsync().Result;
+            var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
+
+            Assert.Equal(200, (int)response.StatusCode);
+            Assert.Equal(expected, result["username"].ToString());
         }
 
         [Fact]

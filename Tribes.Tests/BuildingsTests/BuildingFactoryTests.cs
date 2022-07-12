@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace Tribes.Tests.BuildingsTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class BuildingFactoryTests
     {
         private BuildingFactory _buildingFactory;

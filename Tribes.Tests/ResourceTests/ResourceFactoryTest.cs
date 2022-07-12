@@ -1,8 +1,10 @@
 using Eucyon_Tribes.Models.Resources;
 using Eucyon_Tribes.Factories;
 
-namespace Tribes.Tests
+namespace Tribes.Tests.ResourceTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class ResourceFactoryTest
     {
         ResourceFactory factory = new ResourceFactory();

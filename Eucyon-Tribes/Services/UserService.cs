@@ -269,7 +269,6 @@ namespace Eucyon_Tribes.Services
                 UserDetailDto u = new(user.Id, user.Name, user.Email, user.PasswordHash, k.Id, l.Id
                         , l.XCoordinate, l.YCoordinate, user.CreatedDate, user.VerifiedAt, k.WorldId, k.Name
                         , user.VerificationToken, user.ForgottenPasswordToken);
-
                 userDetailed.Add(u);
             }
             return userDetailed;

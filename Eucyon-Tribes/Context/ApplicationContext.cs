@@ -47,7 +47,7 @@ namespace Eucyon_Tribes.Context
                 .HasMany(w => w.Kingdoms)
                 .WithOne(k => k.World)
                 .IsRequired(true)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Building>()
                 .HasDiscriminator<string>("Building Type")

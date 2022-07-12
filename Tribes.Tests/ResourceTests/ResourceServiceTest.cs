@@ -3,9 +3,11 @@ using Eucyon_Tribes.Models.Buildings;
 using Eucyon_Tribes.Models.Resources;
 using Microsoft.EntityFrameworkCore;
 
-namespace Tribes.Tests
+namespace Tribes.Tests.ResourceTests
 {
-    public class ResourceServiceTest /*: IDisposable*/
+    [Serializable]
+    [Collection("Serialize")]
+    public class ResourceServiceTest
     {
         private readonly static DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()
             .UseInMemoryDatabase(databaseName: "ResourceServiceTest").Options;
@@ -24,30 +26,20 @@ namespace Tribes.Tests
             _db.Database.EnsureDeleted();
             _db.Database.EnsureCreated();
             DateTime timestamp = DateTime.Now + new TimeSpan(0, -2, 0);
-            
+
             var sawMill = new Sawmill() { Level = 1, Production = 10 };
             var mine = new Mine() { Level = 1, Production = 10 };
             var townHall = new TownHall() { Level = 1, Production = 10 };
             var farm = new Farm() { Level = 1, Production = 10 };
-            var wood = new Wood() { Amount = 0, UpdatedAt = timestamp};
+            var wood = new Wood() { Amount = 0, UpdatedAt = timestamp };
             var gold = new Gold() { Amount = 0, UpdatedAt = timestamp };
             var food = new Food() { Amount = 0, UpdatedAt = timestamp };
             var people = new People() { Amount = 0, UpdatedAt = timestamp };
             var soldier = new Soldier() { Amount = 0, UpdatedAt = timestamp };
-            List <Building> buildings = new() { sawMill, mine, townHall, farm };
+            List<Building> buildings = new() { sawMill, mine, townHall, farm };
             List<Resource> resources = new() { wood, gold, food, people, soldier };
-            var kingdom = new Kingdom() { Name = "Aden", Buildings = buildings, Resources = resources};
-            /*foreach (Building building in buildings)
-            {
-                building.Kingdom = kingdom;
-            }
-            _db.Buildings.AddRange(buildings);
-
-            foreach (Resource resource in resources)
-            {
-                resource.Kingdom = kingdom;
-            }
-            _db.Resources.AddRange(resources);*/
+            var kingdom = new Kingdom() { Name = "Aden", Buildings = buildings, Resources = resources };
+            
             _db.Kingdoms.Add(kingdom);
             _db.SaveChanges();
         }
@@ -88,10 +80,5 @@ namespace Tribes.Tests
                 }
             }
         }
-
-       /* public void Dispose()
-        {
-            _db.Database.EnsureDeleted();
-        }*/
     }
 }

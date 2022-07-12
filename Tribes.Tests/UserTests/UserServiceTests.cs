@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Tribes.Tests.UserTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class UserServiceTest : IDisposable
     {
         private readonly static DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()

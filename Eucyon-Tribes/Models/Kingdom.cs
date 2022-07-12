@@ -1,6 +1,5 @@
 namespace Eucyon_Tribes.Models
 {
-
 	public class Kingdom
 	{
 		public int Id { get; set; }

@@ -1,0 +1,100 @@
+﻿@model dynamic
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>List of all Users</title>
+    <style>
+        .tit 
+        {
+            border: dotted black;
+            padding: 5px;
+            background-color: darkgrey;
+            text-decoration: none;
+            color: black;
+        }
+        table, th, td  
+        { 
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+
+<body>
+    <h3 style="color : red">@ViewBag.Message</h3>
+    <a class="tit" href="/home">Homepage</a>
+    <a class="tit" href="/user/login">Login User</a>
+    <a class="tit" href="/user/create">Create new User</a>
+    <a class="tit" href="/user/delete">Delete User</a>
+    <h3>Worlds in database: @ViewBag.Worlds</h3>
+    <h3>Kingdoms in database: @ViewBag.Kingdoms</h3>
+    <h3>Users in Database: @ViewBag.Users</h3>
+    <div>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>CreatedDate</th>
+                <th>VerifiedAt</th>
+                <th>PasswordHash</th>
+                <th>VerificationToken</th>
+                <th>ForgottenPasswordToken</th>
+                <th>KingdomID</th>
+                <th>KingdomName</th>
+                <th>WorldID</th>
+                <th>LocationID</th>
+                <th>XCoordinate</th>
+                <th>YCoordinate</th>
+                <th>Action</th>
+                <th>Action</th>
+            </tr>
+        @foreach (var user in Model.Users)
+        {
+            <tr>
+                <td>@user.ID</td>
+                <td>@user.Name</td>
+                <td>@user.Email</td>
+                <td>@user.CreatedDate</td>
+                <td>@user.VerifiedAt</td>
+                <td>@user.PasswordHash</td>
+                <td>@user.VerificationToken</td>
+                <td>@user.ForgottenPasswordToken</td>
+                <td>@user.KingdomID</td>
+                <td><a href="/kingdomDetail/@user.KingdomID">@user.KingdomName</a></td>
+                <td>@user.WorldID</td>
+                <td>@user.LocationID</td>
+                <td>@user.XCoordinate</td>
+                <td>@user.YCoordinate</td>
+                <td><a style="color:red" href="/delete/@user.ID">Delete</a></td>
+                @if (user.WorldID == 0)
+                {
+                    <td><a href="/user/list?id=@user.ID">Create kingdom</a></td>
+                }
+            </tr>
+        }
+        </table>
+    </div>
+    @if (ViewBag.Id > 0)
+    {
+        <h5 style="margin-top:20px">Create kingdom to user</h5>
+        <form method="post" action="/kingdom/create/@ViewBag.Id">
+            <label for="id">User ID</label>
+            <input type="number" id="id" name="id" value="@ViewBag.Id" required readonly><br />     
+            <label for="name">Kingdom Name</label>
+            <input type="text" id="name" name="name" required><br />     
+            <label for="world">World ID</label>
+            <select id="world" name="worldId" required>
+                <option value="0">Random</option>
+                @foreach(var world in Model.Worlds)
+                {
+                <option value="@world.Id">@world.Id</option>
+                }
+            </select>
+            <input type="submit" value="Create">
+             <a href="/user/list">Cancel</a>
+        </form>
+    }
+</body>
+</html>
