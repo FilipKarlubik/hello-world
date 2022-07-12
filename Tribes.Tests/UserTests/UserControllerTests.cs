@@ -1,10 +1,10 @@
 ﻿using Eucyon_Tribes.Controllers;
-using Eucyon_Tribes.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Eucyon_Tribes.Models.UserModels;
 using Microsoft.EntityFrameworkCore;
 using Eucyon_Tribes.Factories;
+using Microsoft.Extensions.Configuration;
 
 namespace Tribes.Tests.UserTests
 {
@@ -22,6 +22,7 @@ namespace Tribes.Tests.UserTests
         public KingdomFactory kingdomFactory;
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
+        public IAuthService authService;
 
         public UserControllerTests()
         {
@@ -30,7 +31,9 @@ namespace Tribes.Tests.UserTests
             buildingFactory = new BuildingFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
             kingdomService = new KingdomService(db, kingdomFactory);
-            userService = new UserService(db, kingdomService);
+            var config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
+            authService = new JWTService(config);
+            userService = new UserService(db, kingdomService, authService);
             userRestController = new UserRestController(userService);
 
             var user1 = new User()

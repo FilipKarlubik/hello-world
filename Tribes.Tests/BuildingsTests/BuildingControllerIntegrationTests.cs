@@ -17,7 +17,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Index_WithRightUser_ReturnsListOfBuildings()
         {
             _client.DefaultRequestHeaders.Add("userId", "1");
-            var response = _client.GetAsync("https://localhost:7192/api/buildings").Result;
+            var response = await _client.GetAsync("https://localhost:7192/api/buildings");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<List<BuildingsResponseDto>>(body);
 
@@ -29,7 +29,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Index_WithWrongUser_ReturnsWrongUser()
         {
             _client.DefaultRequestHeaders.Add("userId", "5");
-            var response = _client.GetAsync("https://localhost:7192/api/buildings").Result;
+            var response = await _client.GetAsync("https://localhost:7192/api/buildings");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -41,7 +41,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Show_WithRightUser_BuildingsDetails()
         {
             _client.DefaultRequestHeaders.Add("userId", "1");
-            var response = _client.GetAsync("https://localhost:7192/api/buildings/1").Result;
+            var response = await _client.GetAsync("https://localhost:7192/api/buildings/1");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -53,7 +53,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Show_WithWrongUser_ReturnsWrongUser()
         {
             _client.DefaultRequestHeaders.Add("userId", "6");
-            var response = _client.GetAsync("https://localhost:7192/api/buildings/1").Result;
+            var response = await _client.GetAsync("https://localhost:7192/api/buildings/1");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -65,7 +65,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Show_WithWrongBuilding_ReturnsWrongBuilding()
         {
             _client.DefaultRequestHeaders.Add("userId", "1");
-            var response = _client.GetAsync("https://localhost:7192/api/buildings/7").Result;
+            var response = await _client.GetAsync("https://localhost:7192/api/buildings/7");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -77,7 +77,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Destroy_WithRightUserAndBuilding_ReturnsBuildingDeleted()
         {
             _client.DefaultRequestHeaders.Add("userId", "1");
-            var response = _client.DeleteAsync("https://localhost:7192/api/buildings/1").Result;
+            var response = await _client.DeleteAsync("https://localhost:7192/api/buildings/1");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -89,7 +89,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Destroy_WithWrongUser_ReturnsWrongUser()
         {
             _client.DefaultRequestHeaders.Add("userId", "5");
-            var response = _client.DeleteAsync("https://localhost:7192/api/buildings/1").Result;
+            var response = await _client.DeleteAsync("https://localhost:7192/api/buildings/1");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -101,7 +101,7 @@ namespace Tribes.Tests.BuildingsTests
         public async Task Destroy_WithWrongBuilding_ReturnsWrongBuilding()
         {
             _client.DefaultRequestHeaders.Add("userId", "1");
-            var response = _client.DeleteAsync("https://localhost:7192/api/buildings/6").Result;
+            var response = await _client.DeleteAsync("https://localhost:7192/api/buildings/6");
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -115,7 +115,7 @@ namespace Tribes.Tests.BuildingsTests
             _client.DefaultRequestHeaders.Add("userId", "1");
             BuildingRequestDto buildingRequestDto = new BuildingRequestDto(1);
 
-            var response = _client.PostAsync("https://localhost:7192/api/buildings", JsonContent.Create(buildingRequestDto)).Result;
+            var response = await _client.PostAsync("https://localhost:7192/api/buildings", JsonContent.Create(buildingRequestDto));
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -129,7 +129,7 @@ namespace Tribes.Tests.BuildingsTests
             _client.DefaultRequestHeaders.Add("userId", "6");
             BuildingRequestDto buildingRequestDto = new BuildingRequestDto(1);
 
-            var response = _client.PostAsync("https://localhost:7192/api/buildings", JsonContent.Create(buildingRequestDto)).Result;
+            var response = await _client.PostAsync("https://localhost:7192/api/buildings", JsonContent.Create(buildingRequestDto));
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
@@ -143,7 +143,7 @@ namespace Tribes.Tests.BuildingsTests
             _client.DefaultRequestHeaders.Add("userId", "1");
             BuildingRequestDto buildingRequestDto = new BuildingRequestDto(6);
 
-            var response = _client.PostAsync("https://localhost:7192/api/buildings", JsonContent.Create(buildingRequestDto)).Result;
+            var response = await _client.PostAsync("https://localhost:7192/api/buildings", JsonContent.Create(buildingRequestDto));
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 

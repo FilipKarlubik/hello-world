@@ -2,9 +2,9 @@ name: Build & Test
 
 on:
    push:
-    branches: [ "master" ]
+    branches: [ "development" ]
    pull_request:
-    branches: [ "master" ]
+    branches: [ "development" ]
     
 env:
   TOKENKEY: ${{ secrets.TOKENKEY }}

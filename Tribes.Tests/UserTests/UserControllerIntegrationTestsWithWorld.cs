@@ -1,11 +1,6 @@
 ﻿using Eucyon_Tribes.Models.UserModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TribesTest;
 
 namespace Tribes.Tests.UserTests
@@ -59,12 +54,12 @@ namespace Tribes.Tests.UserTests
         [Fact]
         public async void Create_user_in_database_with_worlds()
         {
-            var response = _client.PostAsync("users/create", JsonContent.Create(new UserCreateDto("Mrochta", "h", "mrochta@gmail.com"))).Result;
+            var response = _client.PostAsync("users/create", JsonContent.Create(new UserCreateDto("Mrochta", "h12345678", "mrochta@gmail.com"))).Result;
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
-            Assert.Equal(200, (int)response.StatusCode);
-            Assert.Equal("New user Mrochta created", result["status"].ToString());
+            Assert.Equal(201, (int)response.StatusCode);
+            Assert.Equal("ok", result["status"].ToString());
 
         }
 

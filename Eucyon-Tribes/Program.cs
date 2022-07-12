@@ -26,6 +26,7 @@ builder.Services.AddTransient<ResourceFactory>();
 builder.Services.AddTransient<IKingdomFactory,KingdomFactory>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IKingdomService, KingdomService>();
+builder.Services.AddTransient<IAuthService, JWTService>();
 builder.Services.AddSwaggerGen(options => {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -42,6 +43,8 @@ builder.Services.AddTransient<IKingdomFactory,KingdomFactory>();
 builder.Services.AddTransient<IArmyFactory,ArmyFactory>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IKingdomService, KingdomService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
+var tokenKey = builder.Configuration["TokenGenerationKey"];
 
 var app = builder.Build();
 
@@ -57,14 +60,12 @@ app.MapControllerRoute(
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = String.Empty;
+    });
 }
-
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-    options.RoutePrefix = String.Empty;
-});
 
 app.Run();
 

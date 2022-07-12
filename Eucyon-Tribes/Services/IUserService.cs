@@ -7,7 +7,7 @@ namespace Eucyon_Tribes.Services
     {
         string Login(UserLoginDto login);
         List<UserResponseDto> ListAllUsers();
-        string CreateUser(UserCreateDto user, string kingdomName, int worldId);
+        Dictionary<int, string> CreateUser(UserCreateDto user, string kingdomName, int worldId);
         string DeleteUser(string name, string password);
         User UserInfo(string name);
         List<UserDetailDto> UsersInfoDetailedForAdmin(string adminPass);
