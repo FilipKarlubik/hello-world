@@ -24,7 +24,7 @@ jobs:
       with:
        nuget-version: latest
     - name: Restore NuGet packages
-      run: nuget restore ./Tribes.Tests/Tribes.Tests.sln
+      run: nuget restore ./Eucyon-Tribes/Eucyon-Tribes.sln
     - name: Restore dependencies
       run: dotnet restore ./Eucyon-Tribes/Eucyon-Tribes.sln
     - name: Build
