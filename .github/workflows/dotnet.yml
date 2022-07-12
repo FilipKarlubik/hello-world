@@ -1,19 +1,11 @@
 name: Build & Test
 
 on:
-<<<<<<< HEAD
-   push:
-    branches: [ "development" ]
-   pull_request:
-    branches: [ "development" ]
-    
-=======
  push:
     branches: [ "master" ]
  pull_request:
     branches: [ "master" ]
 
->>>>>>> d503f258662345b24f3a0a48a42f4faad3c0792a
 env:
   TOKENKEY: ${{ secrets.TOKENKEY }}
   SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
