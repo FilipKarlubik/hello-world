@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
     
 env:
-  TokenGenerationKey: b7595051-3f87-49e4-8f55-9fe1dfe724d0
+  TokenGenerationKey: ${{ secrets.TokenGenerationKey }}
 
 jobs:
   build:
