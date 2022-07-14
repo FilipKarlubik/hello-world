@@ -20,12 +20,6 @@ if (env.Equals("Development"))
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 builder.Services.AddControllersWithViews();
-builder.Services.AddTransient<IBuildingFactory, BuildingFactory>();
-builder.Services.AddTransient<IBuildingService, BuildingService>();
-builder.Services.AddTransient<ResourceFactory>();
-builder.Services.AddTransient<IKingdomFactory,KingdomFactory>();
-builder.Services.AddTransient<IUserService, UserService>();
-builder.Services.AddTransient<IKingdomService, KingdomService>();
 builder.Services.AddTransient<IAuthService, JWTService>();
 builder.Services.AddSwaggerGen(options => {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -44,7 +38,6 @@ builder.Services.AddTransient<IArmyFactory,ArmyFactory>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IKingdomService, KingdomService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
-var tokenKey = builder.Configuration["TokenGenerationKey"];
 
 var app = builder.Build();
 

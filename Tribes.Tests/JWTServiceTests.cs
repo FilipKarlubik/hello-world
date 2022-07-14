@@ -15,7 +15,7 @@ namespace Tribes.Tests
 
         public JWTServiceTests()
         {
-            Config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
+            Config = new ConfigurationBuilder().AddUserSecrets("b7595051-3f87-49e4-8f55-9fe1dfe724d1").Build();
             AuthService = new JWTService(Config);
         }
 

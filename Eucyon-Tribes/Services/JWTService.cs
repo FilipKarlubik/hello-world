@@ -18,9 +18,8 @@ namespace Eucyon_Tribes.Services
 
         public string GenerateToken(User user, string purpose)
         {
-            var myKey = _config["TokenGenerationKey"];
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(myKey);
+            var key = Encoding.ASCII.GetBytes(_config["TokenGenerationKey"]);
             var tokenDescriptor = new SecurityTokenDescriptor();
             if (purpose.Equals("verify"))
             {
@@ -45,8 +44,7 @@ namespace Eucyon_Tribes.Services
                 return -1;
             }
             var tokenHandler = new JwtSecurityTokenHandler();
-            var myKey = _config["TokenGenerationKey"];
-            var key = Encoding.ASCII.GetBytes("THE MOST SECRET SECRET USED TO SIGN AND VERIFY JWT TOKENS, THAT IS DEFINITELY VERY SECURE");
+            var key = Encoding.ASCII.GetBytes(_config["TokenGenerationKey"]);
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
