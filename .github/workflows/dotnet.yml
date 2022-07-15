@@ -23,6 +23,6 @@ jobs:
       env:
          TOKENGENERATIONKEY: ${{ secrets.TOKENGENERATIONKEY }}
          TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
-         ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
+         ARMY_SIZE_LIMIT: 12
          MailServicePassword:  ${{ secrets.MAILSERVICEPASSWORD }}
       run: dotnet test --no-build --verbosity normal ./Eucyon-Tribes/Eucyon-Tribes.sln
