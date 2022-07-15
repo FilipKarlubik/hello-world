@@ -19,7 +19,7 @@ namespace Eucyon_Tribes.Services
         public string GenerateToken(User user, string purpose)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["TokenGenerationKey"]);
+            var key = Encoding.ASCII.GetBytes(_config["TOKEN_GENERATION_KEY"]);
             var tokenDescriptor = new SecurityTokenDescriptor();
             if (purpose.Equals("verify"))
             {
