@@ -10,6 +10,8 @@ using TribesTest;
 
 namespace Tribes.Tests.KingdomControllerTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class KingdomControllerTestsEmptyDB : IntegrationTests
     {
 

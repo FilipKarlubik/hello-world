@@ -10,6 +10,8 @@ using TribesTest;
 
 namespace Tribes.Tests.UserTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class UserControllerIntegrationTestsWithWorld : IntegrationTests
     {
         private static string Worlds = "userControllerTestWorlds1";

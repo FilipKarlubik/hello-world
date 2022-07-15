@@ -15,6 +15,8 @@ using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
 
 namespace Tribes.Tests.KingdomControllerTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class KingdomControllerUnitTests : IDisposable
     {
         private readonly static DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()

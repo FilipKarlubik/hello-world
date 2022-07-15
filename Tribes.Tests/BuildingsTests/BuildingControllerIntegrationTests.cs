@@ -5,6 +5,8 @@ using TribesTest;
 
 namespace Tribes.Tests.BuildingsTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class BuildingControllerIntegrationTests : IntegrationTests
     {
         public BuildingControllerIntegrationTests() : base("buildingControllerTests")

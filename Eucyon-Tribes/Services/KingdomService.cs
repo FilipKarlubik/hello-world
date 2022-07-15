@@ -4,6 +4,7 @@ using Eucyon_Tribes.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
+using Eucyon_Tribes.Models.Resources;
 
 namespace Eucyon_Tribes.Services
 {
@@ -12,10 +13,13 @@ namespace Eucyon_Tribes.Services
         private readonly ApplicationContext _db;
         private readonly IKingdomFactory _kingdomFactory;
         public String ErrorMessage;
-        public KingdomService(ApplicationContext db, IKingdomFactory kingdomFactory)
+        private readonly IArmyFactory _armyFactory;
+        public KingdomService(ApplicationContext db, IKingdomFactory kingdomFactory, IArmyFactory armyFactory)
         {
+            this._armyFactory = armyFactory;
             this._db = db;
             this._kingdomFactory = kingdomFactory;
+            _armyFactory = armyFactory;
         }
 
         public Boolean AddKingdom(CreateKingdomDTO createKingdom)
@@ -49,14 +53,14 @@ namespace Eucyon_Tribes.Services
             
             if (_kingdomFactory.CreateKingdom(_db.Users.FirstOrDefault(u => u.Id == createKingdom.UserId), createKingdom.Name, _db.Worlds.Include(w => w.Kingdoms).
                 Include(w => w.Locations).FirstOrDefault(w => w.Id == createKingdom.WorldId)))
-            {           
+            {
+                Army army = _armyFactory.CrateArmy(new List<Soldier>(), _db.Kingdoms.Where(k => k.UserId == createKingdom.UserId).First());
+                army.Type = "Defense";
+                _db.Armies.Add(army);
+                _db.SaveChanges();
                 return true;
             }
-            else
-            {
-                ErrorMessage = "World is full";
-                return false;
-            }
+            return false;
         }
 
         public List<Kingdom> GetKingdomsWorld(World world)

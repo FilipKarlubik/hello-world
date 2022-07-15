@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Tribes.Tests.BuildingsTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class BuildingServiceTests
     {
         private readonly DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()

@@ -1,5 +1,7 @@
 ﻿namespace Tribes.Tests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class UserModelTest
     {
         [Fact]

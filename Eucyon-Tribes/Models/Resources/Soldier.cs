@@ -17,13 +17,13 @@
                 }
             }
         }
-        public int HP { get; set; }
+        public int TotalHP { get; set; }
+        public int CurrentHP { get; set; }
         public int Attack { get; set; }
         public int Defense { get; set; }
-        
-        public int ArmyId { get; set; }
-        public Army Army { get; set; } = null!;
-        
+        public Army Army { get; set; } 
+        public int? ArmyId { get; set; }
+
         public Soldier()
         {
         }

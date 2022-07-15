@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Tribes.Tests.UserTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class UserServiceTest : IDisposable
     {
         private readonly static DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -17,6 +19,7 @@ namespace Tribes.Tests.UserTests
         public KingdomFactory kingdomFactory;
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
+        public ArmyFactory armyFactory;
 
         public UserServiceTest()
         {
@@ -26,8 +29,9 @@ namespace Tribes.Tests.UserTests
             db = new ApplicationContext(options);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
+            armyFactory = new ArmyFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory);
+            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
             userService = new UserService(db, kingdomService);
 
 

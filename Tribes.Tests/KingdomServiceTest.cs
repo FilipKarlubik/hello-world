@@ -8,6 +8,8 @@ using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
 
 namespace TribesTest
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class KingdomServiceTest : IDisposable
     {
         private readonly static DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -17,14 +19,16 @@ namespace TribesTest
         public KingdomFactory Factory;
         public ResourceFactory ResourceFactory;
         public BuildingFactory BuildingFactory;
+        public ArmyFactory ArmyFactory;
 
         public KingdomServiceTest()
         {
             Context = new ApplicationContext(options);
             ResourceFactory = new ResourceFactory();
             BuildingFactory = new BuildingFactory();
+            ArmyFactory = new ArmyFactory();
             Factory = new KingdomFactory(Context, ResourceFactory, BuildingFactory);
-            Service = new KingdomService(Context, Factory);
+            Service = new KingdomService(Context, Factory,ArmyFactory);
             User User = new User();
             User.Name = "test";
             User.Email = "test";

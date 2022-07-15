@@ -32,7 +32,7 @@ namespace Eucyon_Tribes.Factories
                 Amount = 1,
                 UpdatedAt = DateTime.Now,
                 Level = 1,
-                HP = 25,
+                TotalHP = 25,
                 Attack = 10,
                 Defense = 10
             };

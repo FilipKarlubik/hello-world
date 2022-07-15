@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tribes.Tests.SeedData;
 
 namespace TribesTest
-{
+{ 
     public class IntegrationTests
     {
         protected readonly HttpClient _client;
@@ -39,6 +39,11 @@ namespace TribesTest
                             case "buildingControllerTests":
                                 BuildingControllerTestsSeedData.PopulateTestData(appDb);
                                 break;
+
+                            case "armyControllerTests":
+                                SeedDataArmyController.PopulateDataForArmyControllerTest(appDb);
+                                break;
+
                             
                             case "userControllerTestWorlds0":
                                 UserSeedData.PopulateTestData(appDb, dataSeed);

@@ -14,6 +14,7 @@ namespace Eucyon_Tribes.Context
         public virtual DbSet<Location> Locations { get; set; }
         public virtual DbSet<World> Worlds { get; set; }
         public virtual DbSet<Army> Armies { get; set; }
+        public virtual DbSet<Battle> Battles { get; set; }
 
         public ApplicationContext(DbContextOptions options) : base(options)
         {
@@ -47,7 +48,7 @@ namespace Eucyon_Tribes.Context
                 .HasMany(w => w.Kingdoms)
                 .WithOne(k => k.World)
                 .IsRequired(true)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Building>()
                 .HasDiscriminator<string>("Building Type")
@@ -66,16 +67,29 @@ namespace Eucyon_Tribes.Context
                .HasValue<People>("People");
 
             modelBuilder.Entity<Army>()
-                .HasMany(a => a.Soldiers)
-                .WithOne(s => s.Army)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+               .HasMany(a => a.Soldiers)
+               .WithOne(s => s.Army)
+               .HasForeignKey(s => s.ArmyId)
+               .IsRequired(false)
+               .OnDelete(DeleteBehavior.ClientSetNull);
 
             modelBuilder.Entity<Kingdom>()
                 .HasMany(k => k.Armies)
                 .WithOne(a => a.Kingdom)
                 .IsRequired(true)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Kingdom>()
+                .HasMany(b => b.AttackBattles)
+                .WithOne(b => b.Attacker)
+                .IsRequired(true)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            modelBuilder.Entity<Kingdom>()
+                .HasMany(b => b.DefendBattles)
+                .WithOne(b => b.Defender)
+                .IsRequired(true)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }
