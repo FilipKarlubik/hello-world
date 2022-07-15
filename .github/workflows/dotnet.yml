@@ -22,6 +22,6 @@ jobs:
     - name: Test
       env:
         TokenGenerationKey: ${{ secrets.TOKENGENERATIONKEY }}
-        TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
-        ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
+        TRIBES_GAMETICK_LEN: 60
+        ARMY_SIZE_LIMIT: 12
       run: dotnet test --no-build --verbosity minimal ./Eucyon-Tribes/
