@@ -36,7 +36,7 @@ namespace Tribes.Tests
             var usersToken = AuthService.GenerateToken(user, "verify");
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Config["TOKEN_GENERATION_KEY"]);
+            var key = Encoding.ASCII.GetBytes(Config["TOKENGENERATIONKEY"]);
             var tokenDescriptor = new SecurityTokenDescriptor();
             tokenDescriptor.Subject = new ClaimsIdentity(new[] { new Claim("id", "1" )});
             tokenDescriptor.Expires = expiresAt;
