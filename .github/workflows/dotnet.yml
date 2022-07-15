@@ -21,7 +21,7 @@ jobs:
       run: dotnet build --no-restore ./Eucyon-Tribes/Eucyon-Tribes.sln
     - name: Test
       env:
-        TokenGenerationKey: ${{ secrets.TOKENGENERATIONKEY }}
+        TokenGenerationKey: "THE MOST SECRET SECRET USED TO SIGN AND VERIFY JWT TOKENS, THAT IS DEFINITELY VERY SECURE"
         TRIBES_GAMETICK_LEN: 60
         ARMY_SIZE_LIMIT: 12
-      run: dotnet test --no-build --verbosity minimal ./Eucyon-Tribes/Eucyon-Tribes.sln
+      run: dotnet test --no-build --verbosity normal ./Eucyon-Tribes/Eucyon-Tribes.sln
