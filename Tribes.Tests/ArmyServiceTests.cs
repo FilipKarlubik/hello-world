@@ -27,7 +27,7 @@ namespace Tribes.Tests
 
         public ArmyServiceTests()
         {
-            Config = new ConfigurationBuilder().AddUserSecrets("b7595051-3f87-49e4-8f55-9fe1dfe724d1").Build();
+            Config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
             Context = new ApplicationContext(options);
             Context.Database.EnsureDeleted();
             Context.Database.EnsureCreated();
