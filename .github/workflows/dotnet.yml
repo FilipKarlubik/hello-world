@@ -21,7 +21,7 @@ jobs:
       run: dotnet build --no-restore ./Eucyon-Tribes/Eucyon-Tribes.sln
     - name: Test
       env:
-         TokenGenerationKey: ${{ secrets.TOKENGENERATIONKEY }}
+         TOKEN_GENERATION_KEY: ${{ secrets.TOKEN_GENERATION_KEY }}
          TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
          ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
       run: dotnet test --no-build --verbosity normal ./Eucyon-Tribes/Eucyon-Tribes.sln
