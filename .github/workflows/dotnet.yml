@@ -7,8 +7,9 @@ on:
     branches: [ "master" ]
     
 env:
-  TOKENKEY: ${{ secrets.TOKENKEY }}
-  SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+  TokenGenerationKey: ${{ secrets.TokenGenerationKey }}
+  TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
+  ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
 
 jobs:
   build:
