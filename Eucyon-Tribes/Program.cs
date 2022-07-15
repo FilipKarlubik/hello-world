@@ -5,6 +5,7 @@ using Serilog;
 using Eucyon_Tribes.Factories;
 using Microsoft.OpenApi.Models;
 using Eucyon_Tribes.Extensions;
+using Eucyon_Tribes.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
@@ -33,11 +34,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IBuildingFactory, BuildingFactory>();
 builder.Services.AddTransient<IBuildingService, BuildingService>();
 builder.Services.AddTransient<IResourceFactory, ResourceFactory>();
-builder.Services.AddTransient<IKingdomFactory,KingdomFactory>();
-builder.Services.AddTransient<IArmyFactory,ArmyFactory>();
+builder.Services.AddTransient<IKingdomFactory, KingdomFactory>();
+builder.Services.AddTransient<IArmyFactory, ArmyFactory>();
+builder.Services.AddTransient<IArmyService, ArmyService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IKingdomService, KingdomService>();
+builder.Services.AddTransient<ILeaderboardService, LeaderboardService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
+builder.Services.AddTransient<ArmyServiceConfig>(s => new ArmyServiceConfig()
+{
+    ArmySizeLimit = 12
+}
+);
+
 
 var app = builder.Build();
 

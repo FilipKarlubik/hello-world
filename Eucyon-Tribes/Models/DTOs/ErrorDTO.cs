@@ -4,9 +4,9 @@
     {
         public string Error { get; }
 
-        public ErrorDTO(string message)
+        public ErrorDTO (string error)
         {
-            Error = message;
+            Error = error;
         }
     }
 }

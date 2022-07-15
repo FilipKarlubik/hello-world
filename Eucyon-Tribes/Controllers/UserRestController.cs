@@ -21,8 +21,8 @@ namespace Eucyon_Tribes.Controllers
         public IActionResult UserLogin(UserLoginDto login)
         {
             string message = _userService.Login(login);
-            if (!message.EndsWith("in")) 
-                {
+            if (!message.EndsWith("in"))
+            {
                 return BadRequest(new ErrorDTO(message));
             }
             return Ok(new StatusDTO(message));
@@ -37,10 +37,9 @@ namespace Eucyon_Tribes.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult Index()
+        public IActionResult Index(int page, int itemCount)
         {
-            List<UserResponseDto> users = _userService.ListAllUsers();
-
+            List<UserResponseDto> users = _userService.ListAllUsers(page, itemCount);
             if (users == null)
             {
                 ErrorDTO error = new("No users in database");

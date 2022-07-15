@@ -194,9 +194,17 @@ namespace Eucyon_Tribes.Services
             return true;
         }
 
-        public List<UserResponseDto> ListAllUsers()
+        public List<UserResponseDto> ListAllUsers(int page, int itemCount)
         {
-            List<User> usersInDB = _db.Users.ToList();
+            if (itemCount < 1) itemCount = 20;
+            if (page < 1) page = 1;
+            int totalCount = _db.Users.Count();
+            if (totalCount < page * itemCount)
+            {
+                if (totalCount % itemCount == 0) page = totalCount / itemCount;
+                else page = totalCount / itemCount + 1;
+            }
+            List<User> usersInDB = _db.Users.OrderByDescending(u => u.Id).Skip((page - 1) * itemCount).Take(itemCount).ToList();
             List<UserResponseDto> users = new();
             foreach (User user in usersInDB)
             {
@@ -329,6 +337,6 @@ namespace Eucyon_Tribes.Services
                 userDetailed.Add(u);
             }
             return userDetailed;
-        }  
+        }
     }
 }

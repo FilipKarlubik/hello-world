@@ -19,6 +19,7 @@ namespace Tribes.Tests.UserTests
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
         public IAuthService authService;
+        public ArmyFactory armyFactory;
 
         public KingdomServiceCreateKingdomTests()
         {
@@ -26,10 +27,11 @@ namespace Tribes.Tests.UserTests
             db = new ApplicationContext(options);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
+            armyFactory = new ArmyFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory);
             var config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
             authService = new JWTService(config);
+            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
             userService = new UserService(db, kingdomService, authService);
 
             var user1 = new User()

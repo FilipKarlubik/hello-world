@@ -19,6 +19,7 @@ namespace Tribes.Tests.UserTests
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
         public IAuthService authService;
+        public ArmyFactory armyFactory;
 
         public UserServiceTest()
         {
@@ -28,12 +29,12 @@ namespace Tribes.Tests.UserTests
             db = new ApplicationContext(options);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
+            armyFactory = new ArmyFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory);
             var config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
             authService = new JWTService(config);
+            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
             userService = new UserService(db, kingdomService, authService);
-
 
             var user1 = new User()
             {
@@ -73,7 +74,7 @@ namespace Tribes.Tests.UserTests
         {
             var expected = 2;
 
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Fact]
@@ -106,7 +107,7 @@ namespace Tribes.Tests.UserTests
             var expected = 1;
             userService.DeleteUser("Klotilda", "k");
 
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Fact]
@@ -115,7 +116,7 @@ namespace Tribes.Tests.UserTests
             var expected = 2;
             userService.DeleteUser("Izonka", "i");
 
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Fact]
@@ -124,7 +125,7 @@ namespace Tribes.Tests.UserTests
             var expected = 2;
             userService.DeleteUser("Klotilda", "i");
 
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Fact]
@@ -133,7 +134,7 @@ namespace Tribes.Tests.UserTests
             var expected = 3;
             UserCreateDto user = new("Izonka", "i12345678", "izonka@gmail.com");
             userService.CreateUser(user, null, 0);
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Fact]
@@ -142,7 +143,7 @@ namespace Tribes.Tests.UserTests
             var expected = 2;
             UserCreateDto user = new("Matilda", "m12345678", "");
             userService.CreateUser(user, null, 0);
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Fact]
@@ -151,7 +152,7 @@ namespace Tribes.Tests.UserTests
             var expected = 2;
             UserCreateDto user = new("Izonka", "i12345678", "matilda@gmail.com");
             userService.CreateUser(user, null, 0);
-            Assert.Equal(expected, userService.ListAllUsers().Count);
+            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
         }
 
         [Theory]

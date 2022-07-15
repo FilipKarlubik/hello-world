@@ -19,6 +19,9 @@ namespace Eucyon_Tribes.Models
 
 		public List<Army> Armies { get; set; } = null!;
 
+		public List<Battle> AttackBattles { get; set; } = null!;
+		public List<Battle> DefendBattles { get; set; } = null!;
+
 		public Kingdom()
 		{
 		}

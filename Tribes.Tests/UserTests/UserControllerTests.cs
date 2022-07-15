@@ -23,16 +23,18 @@ namespace Tribes.Tests.UserTests
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
         public IAuthService authService;
+        public ArmyFactory armyFactory;
 
         public UserControllerTests()
         {
             db = new ApplicationContext(options);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
+            armyFactory = new ArmyFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory);
             var config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
             authService = new JWTService(config);
+            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
             userService = new UserService(db, kingdomService, authService);
             userRestController = new UserRestController(userService);
 
@@ -106,7 +108,7 @@ namespace Tribes.Tests.UserTests
             mockUserService.Setup(i => i.ShowUser(It.IsAny<int>())).Returns<UserResponseDto>(null);
             var userRestController = new UserRestController(mockUserService.Object);
             // Act
-            var result = (ObjectResult)userRestController.Index();
+            var result = (ObjectResult)userRestController.Index(0,0);
             // Assert
             Assert.Equal(statuscode, result.StatusCode);
         }
@@ -117,10 +119,10 @@ namespace Tribes.Tests.UserTests
         {
             // Arrange
             var mockUserService = new Mock<IUserService>();
-            mockUserService.Setup(i => i.ListAllUsers()).Returns(new List<UserResponseDto>());
+            mockUserService.Setup(i => i.ListAllUsers(0,0)).Returns(new List<UserResponseDto>());
             var userRestController = new UserRestController(mockUserService.Object);
             // Act
-            var result = (ObjectResult)userRestController.Index();
+            var result = (ObjectResult)userRestController.Index(0,0);
             // Assert
             Assert.Equal(statuscode, result.StatusCode);
         }
@@ -131,10 +133,10 @@ namespace Tribes.Tests.UserTests
         {
             // Arrange
             var mockUserService = new Mock<IUserService>();
-            mockUserService.Setup(i => i.ListAllUsers()).Returns<UserResponseDto>(null);
+            mockUserService.Setup(i => i.ListAllUsers(0,0)).Returns<UserResponseDto>(null);
             var userRestController = new UserRestController(mockUserService.Object);
             // Act
-            var result = (ObjectResult)userRestController.Index();
+            var result = (ObjectResult)userRestController.Index(0,0);
             // Assert
             Assert.Equal(statuscode, result.StatusCode);
         }
