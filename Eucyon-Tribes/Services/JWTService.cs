@@ -44,7 +44,7 @@ namespace Eucyon_Tribes.Services
                 return -1;
             }
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["TokenGenerationKey"]);
+            var key = Encoding.ASCII.GetBytes(_config["TOKEN_GENERATION_KEY"]);
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
