@@ -21,13 +21,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.1" />
-<<<<<<< HEAD
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
-=======
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />  
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0" />
->>>>>>> 49a54880e4537d3477e5373b9d1a917f0a158a43
     <Folder Include="Controllers\" />
   </ItemGroup>
 </Project>
