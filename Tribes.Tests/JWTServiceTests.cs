@@ -15,7 +15,7 @@ namespace Tribes.Tests
 
         public JWTServiceTests()
         {
-            Config = new ConfigurationBuilder().AddUserSecrets("b7595051-3f87-49e4-8f55-9fe1dfe724d1").Build();
+            Config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
             AuthService = new JWTService(Config);
         }
 
@@ -36,7 +36,7 @@ namespace Tribes.Tests
             var usersToken = AuthService.GenerateToken(user, "verify");
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Config["TokenGenerationKey"]);
+            var key = Encoding.ASCII.GetBytes(Config["TOKEN_GENERATION_KEY"]);
             var tokenDescriptor = new SecurityTokenDescriptor();
             tokenDescriptor.Subject = new ClaimsIdentity(new[] { new Claim("id", "1" )});
             tokenDescriptor.Expires = expiresAt;
