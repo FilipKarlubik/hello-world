@@ -1,7 +1,15 @@
-﻿using Eucyon_Tribes.Models.DTOs;
+﻿using Eucyon_Tribes.Models;
+using Eucyon_Tribes.Models.DTOs;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using TribesTest;
 
 namespace Tribes.Tests.KingdomControllerTests

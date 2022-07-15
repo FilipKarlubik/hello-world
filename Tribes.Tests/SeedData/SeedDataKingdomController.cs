@@ -1,4 +1,12 @@
-﻿namespace Tribes.Tests.SeedData
+﻿using Eucyon_Tribes.Context;
+using Eucyon_Tribes.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Tribes.Tests.SeedData
 {
     public class SeedDataKingdomController
     {

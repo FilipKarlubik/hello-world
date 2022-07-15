@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Eucyon_Tribes</RootNamespace>
-    <UserSecretsId>5ea770c2-4c16-4659-94eb-5a89323b961c</UserSecretsId>
+    <UserSecretsId>b7595051-3f87-49e4-8f55-9fe1dfe724d1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,6 @@
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.3.0" />
     <PackageReference Include="Serilog.Sinks.MSSqlServer" Version="5.7.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />  
     <Folder Include="Controllers\" />
   </ItemGroup>

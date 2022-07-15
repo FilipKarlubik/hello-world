@@ -1,5 +1,9 @@
+using Eucyon_Tribes.Context;
 using Eucyon_Tribes.Factories;
+using Eucyon_Tribes.Models;
+using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
 
 namespace TribesTest
@@ -121,10 +125,10 @@ namespace TribesTest
                 kingdomsDTO[i] = kingdomDTO;
             }
 
-            Assert.Equal(kingdomsDTO.Count(), Service.GetKingdoms(0,0).Count());
-            Assert.Equal(kingdomsDTO[0].Name, Service.GetKingdoms(0,0)[0].Name);
-            Assert.Equal(kingdomsDTO[1].Owner, Service.GetKingdoms(0,0)[1].Owner);
-            Assert.Equal(kingdomsDTO[2].World, Service.GetKingdoms(0,0)[2].World);
+            Assert.Equal(kingdomsDTO.Count(), Service.GetKingdoms().Count());
+            Assert.Equal(kingdomsDTO[0].Name, Service.GetKingdoms()[0].Name);
+            Assert.Equal(kingdomsDTO[1].Owner, Service.GetKingdoms()[1].Owner);
+            Assert.Equal(kingdomsDTO[2].World, Service.GetKingdoms()[2].World);
         }
 
         [Fact]
@@ -161,23 +165,5 @@ namespace TribesTest
             Assert.Equal(Service.GetKindom(Context.Kingdoms.First().Id).Id, kingdomDTO.Id); 
         }
 
-        [Fact]
-        public void GetAllKingdomsTest()
-        {
-            var kingdoms = new List<Kingdom>()
-            {
-                new Kingdom() { Name = "2", Buildings = new List<Building>(), Resources = new List<Resource>(), Armies = new List<Army>() },
-                new Kingdom() { Name = "1", Buildings = new List<Building>(), Resources = new List<Resource>(), Armies = new List<Army>() },
-                new Kingdom() { Name = "0", Buildings = new List<Building>(), Resources = new List<Resource>(), Armies = new List<Army>() },
-            };
-            Context.Kingdoms.AddRange(kingdoms);
-            Context.SaveChanges();
-            var actual = Context.Kingdoms.ToList();
-            Assert.True(actual.Count() == 3);
-            for (int i = 0; i < 3; i++)
-            {
-                Assert.Equal(actual[i].Name, i.ToString());
-            }
-        }
     }
 }

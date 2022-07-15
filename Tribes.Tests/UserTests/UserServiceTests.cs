@@ -1,7 +1,8 @@
+using Eucyon_Tribes.Context;
 using Eucyon_Tribes.Factories;
 using Eucyon_Tribes.Models.UserModels;
+using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Tribes.Tests.UserTests
 {
@@ -18,7 +19,6 @@ namespace Tribes.Tests.UserTests
         public KingdomFactory kingdomFactory;
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
-        public IAuthService authService;
         public ArmyFactory armyFactory;
 
         public UserServiceTest()
@@ -31,10 +31,9 @@ namespace Tribes.Tests.UserTests
             buildingFactory = new BuildingFactory();
             armyFactory = new ArmyFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            var config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
-            authService = new JWTService(config);
             kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
-            userService = new UserService(db, kingdomService, authService);
+            userService = new UserService(db, kingdomService);
+
 
             var user1 = new User()
             {
@@ -74,7 +73,7 @@ namespace Tribes.Tests.UserTests
         {
             var expected = 2;
 
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]
@@ -107,7 +106,7 @@ namespace Tribes.Tests.UserTests
             var expected = 1;
             userService.DeleteUser("Klotilda", "k");
 
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]
@@ -116,7 +115,7 @@ namespace Tribes.Tests.UserTests
             var expected = 2;
             userService.DeleteUser("Izonka", "i");
 
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]
@@ -125,48 +124,34 @@ namespace Tribes.Tests.UserTests
             var expected = 2;
             userService.DeleteUser("Klotilda", "i");
 
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]
         public void Create_User_Test()
         {
             var expected = 3;
-            UserCreateDto user = new("Izonka", "i12345678", "izonka@gmail.com");
+            UserCreateDto user = new("Izonka", "i", "izonka@gmail.com");
             userService.CreateUser(user, null, 0);
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]
         public void Create_Existing_User_Test()
         {
             var expected = 2;
-            UserCreateDto user = new("Matilda", "m12345678", "");
+            UserCreateDto user = new("Matilda", "m", "");
             userService.CreateUser(user, null, 0);
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]
         public void Create_User_With_Existing_Email_Test()
         {
             var expected = 2;
-            UserCreateDto user = new("Izonka", "i12345678", "matilda@gmail.com");
+            UserCreateDto user = new("Izonka", "i", "matilda@gmail.com");
             userService.CreateUser(user, null, 0);
-            Assert.Equal(expected, userService.ListAllUsers(0,0).Count);
-        }
-
-        [Theory]
-        [InlineData(null, "12345678", "mail@gmail.com", 400)]
-        [InlineData("abcde", null, "mail@gmail.com", 400)]
-        [InlineData("abcde", "12345678", null, 400)]
-        [InlineData("abc", "12345678", "mail@gmail.com", 400)]
-        [InlineData("abcdef", "1234", "mail@gmail.com", 400)]
-        [InlineData("abcdef", "12345678", "mailgmail.com", 400)]
-        public void CreateUserWithDifferentNullInputs(string name, string password, string email, int statusCode)
-        {
-            UserCreateDto user = new UserCreateDto(name, password, email);
-            var response = userService.CreateUser(user, null, 1);
-            Assert.Equal(statusCode, response.ElementAt(0).Key);
+            Assert.Equal(expected, userService.ListAllUsers().Count);
         }
 
         [Fact]

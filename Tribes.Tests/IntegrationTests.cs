@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Eucyon_Tribes.Context;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -51,15 +52,7 @@ namespace TribesTest
                             case "userControllerTestWorlds1":
                                 UserSeedData.PopulateTestData(appDb, dataSeed);
                                 break;
-
-                            case "leaderboardControllerWithKingdomsTest":
-                                SeedDataLeaderboardController.PopulateForLeaderboardControllerTest(appDb, true);
-                                break;
-
-                            case "leaderboardControllerWithoutKingdomsTest":
-                                SeedDataLeaderboardController.PopulateForLeaderboardControllerTest(appDb, false);
-                                break;
-
+                            
                             default:
                                 break;
                         }

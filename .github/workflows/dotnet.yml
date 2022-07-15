@@ -2,15 +2,10 @@ name: Build & Test
 
 on:
    push:
-    branches: [ "master" ]
+    branches: [ "development" ]
    pull_request:
-    branches: [ "master" ]
+    branches: [ "development" ]
     
-env:
-  TokenGenerationKey: ${{ secrets.TokenGenerationKey }}
-  TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
-  ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,4 +20,8 @@ jobs:
     - name: Build
       run: dotnet build --no-restore ./Eucyon-Tribes/Eucyon-Tribes.sln
     - name: Test
+      env:
+        TokenGenerationKey: ${{ secrets.TokenGenerationKey }}
+        TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
+        ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
       run: dotnet test --no-build --verbosity minimal ./Eucyon-Tribes/
