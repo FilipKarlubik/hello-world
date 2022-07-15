@@ -1,12 +1,11 @@
-﻿using Eucyon_Tribes.Context;
-using Microsoft.AspNetCore.Mvc.Testing;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tribes.Tests.SeedData;
 
 namespace TribesTest
-{
+{ 
     public class IntegrationTests
     {
         protected readonly HttpClient _client;
@@ -39,7 +38,16 @@ namespace TribesTest
                             case "buildingControllerTests":
                                 BuildingControllerTestsSeedData.PopulateTestData(appDb);
                                 break;
+
+                            case "armyControllerTests":
+                                SeedDataArmyController.PopulateDataForArmyControllerTest(appDb);
+                                break;
+
                             
+                            case "buildingControllerTestsNoResource":
+                                BuildingControllerTestsSeedDataNoResources.PopulateTestData(appDb);
+                                break;
+
                             case "userControllerTestWorlds0":
                                 UserSeedData.PopulateTestData(appDb, dataSeed);
                                 break;
@@ -47,7 +55,15 @@ namespace TribesTest
                             case "userControllerTestWorlds1":
                                 UserSeedData.PopulateTestData(appDb, dataSeed);
                                 break;
-                            
+
+                            case "leaderboardControllerWithKingdomsTest":
+                                SeedDataLeaderboardController.PopulateForLeaderboardControllerTest(appDb, true);
+                                break;
+
+                            case "leaderboardControllerWithoutKingdomsTest":
+                                SeedDataLeaderboardController.PopulateForLeaderboardControllerTest(appDb, false);
+                                break;
+
                             default:
                                 break;
                         }

@@ -2,7 +2,6 @@
 using Eucyon_Tribes.Models;
 using Eucyon_Tribes.Factories;
 using Eucyon_Tribes.Models.DTOs.BuildingDTOs;
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,12 +11,13 @@ namespace Eucyon_Tribes.Services
     {
         private readonly ApplicationContext _db;
         private readonly BuildingFactory _buildingFactory;
-
+        private readonly PurchaseService _purchaseService;
 
         public BuildingService(ApplicationContext db)
         {
             _db = db;
             _buildingFactory = new BuildingFactory();
+            _purchaseService = new PurchaseService(db);
         }
 
         public void SaveBuilding(Building building)
@@ -158,20 +158,22 @@ namespace Eucyon_Tribes.Services
             {
                 return new BuildingCreationResponseDto("FullKingdom");
             }
-            if (!KingdomHasResources())
-            {
-                return new BuildingCreationResponseDto("WrongResources");
-            }
             if (id > 4 || id < 1)
             {
                 return new BuildingCreationResponseDto("WrongBuilding");
             }
 
             var building = CreateRightBuilding(id);
+
+            if (!KingdomHasResourcesForBuildingCreation(kingdom, building))
+            {
+                return new BuildingCreationResponseDto("NoResources");
+            }
+
             kingdom.Buildings.Add(building);
             _db.Buildings.Add(building);
             _db.SaveChanges();
-            return new BuildingCreationResponseDto("Ok");
+            return new BuildingCreationResponseDto("Building has been created");
         }
 
         public Building CreateRightBuilding(int id)
@@ -190,10 +192,69 @@ namespace Eucyon_Tribes.Services
             return null;
         }
 
-        public bool KingdomHasResources()
+        public bool KingdomHasResourcesForBuildingCreation(Kingdom kingdom, Building building)
         {
-            //Method body needed (Logic for creation and updating buildings not implemented yet)
-            return true;
+            _purchaseService.kingdom = kingdom;
+
+            switch (building.GetType().Name)
+            {
+                case "Farm":
+                    return _purchaseService.EnoughResourcesForCreatingFarm();
+                case "Mine":
+                    return _purchaseService.EnoughResourcesForCreatingMine();
+                case "Sawmill":
+                    return _purchaseService.EnoughResourcesForCreatingSawmill();
+                case "Barracks":
+                    return _purchaseService.EnoughResourcesForCreatingBarracks();
+            }
+            return false;
+        }
+
+        public BuildingCreationResponseDto UpgradeBuilding(int id, int userId)
+        {
+            var kingdom = _db.Kingdoms.Include(p => p.Buildings).Include(p => p.Resources).FirstOrDefault(p => p.UserId == userId);
+            var building = kingdom.Buildings.FirstOrDefault(p => p.Id == id);
+            var townhall = kingdom.Buildings.FirstOrDefault(p => p.GetType().Name.Equals("TownHall"));
+
+            if (kingdom == null)
+            {
+                return new BuildingCreationResponseDto("WrongUser");
+            }
+            if (building == null)
+            {
+                return new BuildingCreationResponseDto("WrongBuilding");
+            }
+            if (!building.GetType().Name.Equals("TownHall") && building.Level == townhall.Level)
+            {
+                return new BuildingCreationResponseDto("TownHallLowLevel");
+            }            
+
+            if (!KingdomHasResourcesForBuildingUpgrade(kingdom, building))
+            {
+                return new BuildingCreationResponseDto("NoResources");
+            }
+            
+            return new BuildingCreationResponseDto("Building has been upgraded");
+        }
+
+        public bool KingdomHasResourcesForBuildingUpgrade(Kingdom kingdom, Building building)
+        {
+            _purchaseService.kingdom = kingdom;
+
+            switch (building.GetType().Name)
+            {
+                case "Farm":
+                    return _purchaseService.EnoughResourcesForUpgradingFarm(building);
+                case "Mine":
+                    return _purchaseService.EnoughResourcesForUpgradingMine(building);
+                case "Sawmill":
+                    return _purchaseService.EnoughResourcesForUpgradingSawmill(building);
+                case "Barracks":
+                    return _purchaseService.EnoughResourcesForUpgradingBarracks(building);
+                case "TownHall":
+                    return _purchaseService.EnoughResourcesForUpgradingTownHall(building);
+            }
+            return false;
         }
     }
 }

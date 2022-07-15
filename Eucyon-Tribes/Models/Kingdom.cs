@@ -1,6 +1,5 @@
 namespace Eucyon_Tribes.Models
 {
-
 	public class Kingdom
 	{
 		public int Id { get; set; }
@@ -19,6 +18,9 @@ namespace Eucyon_Tribes.Models
 		public World World { get; set; } = null!;
 
 		public List<Army> Armies { get; set; } = null!;
+
+		public List<Battle> AttackBattles { get; set; } = null!;
+		public List<Battle> DefendBattles { get; set; } = null!;
 
 		public Kingdom()
 		{

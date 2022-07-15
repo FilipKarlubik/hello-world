@@ -4,6 +4,9 @@ using Eucyon_Tribes.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
+using Eucyon_Tribes.Models.DTOs.BattleDTOs;
+using Eucyon_Tribes.Models.Resources;
+
 
 namespace Eucyon_Tribes.Services
 {
@@ -12,10 +15,13 @@ namespace Eucyon_Tribes.Services
         private readonly ApplicationContext _db;
         private readonly IKingdomFactory _kingdomFactory;
         public String ErrorMessage;
-        public KingdomService(ApplicationContext db, IKingdomFactory kingdomFactory)
+        private readonly IArmyFactory _armyFactory;
+        public KingdomService(ApplicationContext db, IKingdomFactory kingdomFactory, IArmyFactory armyFactory)
         {
+            this._armyFactory = armyFactory;
             this._db = db;
             this._kingdomFactory = kingdomFactory;
+            _armyFactory = armyFactory;
         }
 
         public Boolean AddKingdom(CreateKingdomDTO createKingdom)
@@ -49,14 +55,14 @@ namespace Eucyon_Tribes.Services
             
             if (_kingdomFactory.CreateKingdom(_db.Users.FirstOrDefault(u => u.Id == createKingdom.UserId), createKingdom.Name, _db.Worlds.Include(w => w.Kingdoms).
                 Include(w => w.Locations).FirstOrDefault(w => w.Id == createKingdom.WorldId)))
-            {           
+            {
+                Army army = _armyFactory.CrateArmy(new List<Soldier>(), _db.Kingdoms.Where(k => k.UserId == createKingdom.UserId).First());
+                army.Type = "Defense";
+                _db.Armies.Add(army);
+                _db.SaveChanges();
                 return true;
             }
-            else
-            {
-                ErrorMessage = "World is full";
-                return false;
-            }
+            return false;
         }
 
         public List<Kingdom> GetKingdomsWorld(World world)
@@ -64,9 +70,17 @@ namespace Eucyon_Tribes.Services
             return _db.Kingdoms.Where(k => k.WorldId == world.Id).ToList();
         }
 
-        public KingdomsDTO[] GetKingdoms()
+        public KingdomsDTO[] GetKingdoms(int page, int itemCount)
         {
-            List<Kingdom> kingdoms = _db.Kingdoms.ToList();
+            if (itemCount < 1) itemCount = 20;
+            if (page < 1) page = 1;
+            int totalCount = _db.Kingdoms.Count();
+            if (totalCount < page * itemCount)
+            {
+                if (totalCount % itemCount == 0) page = totalCount / itemCount;
+                else page = totalCount / itemCount + 1;
+            }
+            List<Kingdom> kingdoms = _db.Kingdoms.OrderByDescending(u => u.Id).Skip((page - 1) * itemCount).Take(itemCount).ToList();
             KingdomsDTO[] kingdomsDTO = new KingdomsDTO[kingdoms.Count];
             for (int i = 0; i < kingdoms.Count; i++)
             {
@@ -150,6 +164,37 @@ namespace Eucyon_Tribes.Services
             {
                 return new KingdomCreateResponseDTO(400, "Invalid Coordinates", true);
             }
+        }
+
+        public List<Kingdom> GetAllKingdoms()
+        {
+            return _db.Kingdoms.Include(k => k.Buildings).Include(k => k.Armies).Include(k => k.Resources).ToList();
+        }
+
+        public List<BattleResposeDto> GetBattles(int page, int itemCount)
+        {
+            if (itemCount < 1) itemCount = 20;
+            if (page < 1) page = 1;
+            int totalCount = _db.Battles.Count();
+            if (totalCount < page * itemCount)
+            {
+                if (totalCount % itemCount == 0) page = totalCount / itemCount;
+                else page = totalCount / itemCount + 1;
+            }
+            List<Battle> battlesInDB = _db.Battles.OrderByDescending(u => u.Id).Skip((page - 1) * itemCount).Take(itemCount).ToList();
+            List<BattleResposeDto> battles = new();
+            foreach (Battle battle in battlesInDB)
+            {
+                BattleResposeDto b = new(battle.Id, battle.AttackerId,
+                    _db.Kingdoms.FirstOrDefault(k => k.Id.Equals(battle.AttackerId)).Name,
+                    battle.DefenderId, 
+                    _db.Kingdoms.FirstOrDefault(k => k.Id.Equals(battle.DefenderId)).Name,
+                    battle.Fought_at,
+                    battle.Outcome
+                );
+                battles.Add(b);
+            }
+            return battles;
         }
     }
 }

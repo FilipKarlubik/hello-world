@@ -1,4 +1,7 @@
-﻿namespace Eucyon_Tribes.Models
+﻿using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+
+namespace Eucyon_Tribes.Models
 {
     public class User
     {
@@ -17,8 +20,13 @@
 
         public User()
         {
-            VerificationTokenExpiresAt = DateTime.Now.AddDays(5);
+            VerificationTokenExpiresAt = DateTime.Now.AddHours(1);
             CreatedDate = DateTime.Now;
+        }
+
+        public void setVerificationExpiration(int hours)
+        {
+            this.VerificationTokenExpiresAt = DateTime.Now.AddHours(hours);
         }
     }
 }

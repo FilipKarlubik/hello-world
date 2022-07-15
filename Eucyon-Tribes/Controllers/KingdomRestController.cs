@@ -1,4 +1,5 @@
 ﻿using Eucyon_Tribes.Models.DTOs;
+using Eucyon_Tribes.Models.DTOs.BattleDTOs;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
 using Eucyon_Tribes.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +17,9 @@ namespace Eucyon_Tribes.Controllers
         }
 
         [HttpGet("kingdoms")]
-        public IActionResult Index()
+        public IActionResult Index(int page, int itemCount)
         {
-            KingdomsDTO[] kingdoms = _kingdomService.GetKingdoms();
+            KingdomsDTO[] kingdoms = _kingdomService.GetKingdoms(page, itemCount);
             return Ok(kingdoms);
         }
 
@@ -71,6 +72,13 @@ namespace Eucyon_Tribes.Controllers
             {
                 return StatusCode(response.StatusCode, new StatusDTO(response.Message));
             }      
+        }
+
+        [HttpGet("battles")]
+        public IActionResult GetBattles(int page, int itemCount)
+        {
+            List<BattleResposeDto> battles = _kingdomService.GetBattles(page, itemCount);
+            return Ok(battles);
         }
     }
 }

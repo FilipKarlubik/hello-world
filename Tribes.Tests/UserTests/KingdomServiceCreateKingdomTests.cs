@@ -1,11 +1,12 @@
 ﻿using Eucyon_Tribes.Factories;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
-using Eucyon_Tribes.Models.UserModels;
-using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Tribes.Tests.UserTests
 {
+    [Serializable]
+    [Collection("Serialize")]
     public class KingdomServiceCreateKingdomTests : IDisposable
     {
         private readonly static DbContextOptions options = new DbContextOptionsBuilder<ApplicationContext>()
@@ -17,6 +18,8 @@ namespace Tribes.Tests.UserTests
         public KingdomFactory kingdomFactory;
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
+        public IAuthService authService;
+        public ArmyFactory armyFactory;
 
         public KingdomServiceCreateKingdomTests()
         {
@@ -24,9 +27,12 @@ namespace Tribes.Tests.UserTests
             db = new ApplicationContext(options);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
+            armyFactory = new ArmyFactory();
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory);
-            userService = new UserService(db, kingdomService);
+            var config = new ConfigurationBuilder().AddUserSecrets("5ea770c2-4c16-4659-94eb-5a89323b961c").Build();
+            authService = new JWTService(config);
+            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
+            userService = new UserService(db, kingdomService, authService);
 
             var user1 = new User()
             {

@@ -13,6 +13,7 @@ namespace Eucyon_Tribes.Services
         BuildingCreationResponseDto DeleteBuildingById(int id, int userId);
         BuildingCreationResponseDto StoreNewBulding(BuildingRequestDto buildingRequestDto, int userId);
         Building CreateRightBuilding(int id);
-        bool KingdomHasResources();
+        bool KingdomHasResourcesForBuildingCreation(Kingdom kingdom, Building building);
+        BuildingCreationResponseDto UpgradeBuilding(int id, int userId);
     }
 }

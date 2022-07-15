@@ -6,8 +6,8 @@ namespace Eucyon_Tribes.Services
     public interface IUserService
     {
         string Login(UserLoginDto login);
-        List<UserResponseDto> ListAllUsers();
-        string CreateUser(UserCreateDto user, string kingdomName, int worldId);
+        Dictionary<int, string> CreateUser(UserCreateDto user, string kingdomName, int worldId);
+        List<UserResponseDto> ListAllUsers(int page, int itemCount);
         string DeleteUser(string name, string password);
         User UserInfo(string name);
         List<UserDetailDto> UsersInfoDetailedForAdmin(string adminPass);
@@ -15,6 +15,6 @@ namespace Eucyon_Tribes.Services
         bool DestroyUser(int id, string password);
         bool EditUser(int id, string name, string password);
         bool UpdateUser(int id, UserCreateDto user);
-        int StoreUsers(UsersInputDto users);      
+        int StoreUsers(UsersInputDto users);
     }
 }
