@@ -21,7 +21,7 @@
         public int CurrentHP { get; set; }
         public int Attack { get; set; }
         public int Defense { get; set; }
-        public Army Army { get; set; } 
+        public Army Army { get; set; }
         public int? ArmyId { get; set; }
 
         public Soldier()

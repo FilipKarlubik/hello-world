@@ -19,11 +19,9 @@ namespace Tribes.Tests.SeedData
             user1.Email = "Email1";
             user1.ForgottenPasswordToken = "token1";
             user1.VerificationToken = "token1";
-            user1.ForgottenPasswordToken = "token1";
             User user2 = new User();
             user2.Name = "User2";
             user2.VerificationToken = "token2";
-            user2.ForgottenPasswordToken = "token2";
             user2.PasswordHash = "Password2";
             user2.Email = "Email2";
             user2.ForgottenPasswordToken = "token2";

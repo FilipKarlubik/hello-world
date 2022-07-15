@@ -9,37 +9,68 @@ namespace Eucyon_Tribes.Services
     {
         private readonly ApplicationContext _db;
         private readonly IKingdomService _kingdomService;
+        private readonly IAuthService _authService;
 
-        public UserService(ApplicationContext db, IKingdomService kingdomService)
+        public UserService(ApplicationContext db, IKingdomService kingdomService, IAuthService authService)
         {
             _db = db;
             _kingdomService = kingdomService;
+            _authService = authService;
         }
 
-        public string CreateUser(UserCreateDto user, string kingdomName, int worldId)
+        public Dictionary<int, string> CreateUser(UserCreateDto user, string kingdomName, int worldId)
         {
-            if (user.Name == null || user.Password == null || user.Email == null)
+            if (user.Name == null || user.Name.Equals(string.Empty))
             {
-                return "Invalid input parametters";
+                return new Dictionary<int, string> { { 400, "Username is required" } };
+            }
+            if (user.Password == null || user.Password.Equals(string.Empty))
+            {
+                return new Dictionary<int, string> { { 400, "Password is required" } };
+            }
+            if (user.Email == null || user.Email.Equals(string.Empty))
+            {
+                return new Dictionary<int, string> { { 400, "Email is required" } };
             }
             if (_db.Worlds.ToList().Count == 0)
             {
-                return "No worlds in database";
+                return new Dictionary<int, string> { { 500, "No worlds in database" } };
             }
             if (_db.Users.Any(u => u.Name.Equals(user.Name)))
             {
-                return "User with name " + user.Name + " already exists";
+                return new Dictionary<int, string> { { 409, "Username is already taken" } };
             }
             else if (_db.Users.Any(u => u.Email.Equals(user.Email)))
             {
-                return "User with email " + user.Email + " already exists";
+                return new Dictionary<int, string> { { 409, "Email is already taken"} };
+            }
+            if (user.Name.Length < 4)
+            {
+                return new Dictionary<int, string> { { 400, "Username must be at least 4 characters long" } };
+            }
+            if (user.Password.Length < 8)
+            {
+                return new Dictionary<int, string> { { 400, "Password must be at least 8 characters long"} };
+            }
+            if (!validateEmail(user.Email))
+            {
+                return new Dictionary<int, string> { { 400, "Invalid email" } };
             }
             else
             {
-                User newUser = new User() { Name = user.Name, PasswordHash = user.Password, Email = user.Email };
-                SetDefaultValues(newUser);
-                _db.Users.Add(newUser);
-                _db.SaveChanges();
+                try
+                {
+                    User newUser = new User() { Name = user.Name, PasswordHash = user.Password, Email = user.Email };
+                    SetDefaultValues(newUser);
+                    _db.Users.Add(newUser);
+                    _db.SaveChanges();
+                }
+                catch
+                {
+                    return new Dictionary<int, string> { { 400, "Unknown error" } };
+                }
+
+                Dictionary<int, string> result;
                 if (kingdomName != null && kingdomName != "")
                 {
                     if (worldId == 0)
@@ -50,18 +81,44 @@ namespace Eucyon_Tribes.Services
                     }
                     if (_kingdomService.AddKingdom(new CreateKingdomDTO(_db.Users.FirstOrDefault(u => u.Name.Equals(user.Name)).Id, worldId, kingdomName)))
                     {
-                        return "New user " + user.Name + " created with kingdom " + kingdomName;
+                        result = new Dictionary<int, string> { { 201, "New user " + user.Name + " created with kingdom " + kingdomName } };
                     }
                     else
                     {
-                        return "Kingdom can not be created, user was created without kingdom, you can create kingdom manually";
+                        result = new Dictionary<int, string> { { 201, "Kingdom can not be created, user was created without kingdom, you can create kingdom manually" } };
                     }
                 }
                 else
                 {
-                    return "New user " + user.Name + " created";
+                    result = new Dictionary<int, string> { { 201, "New user " + user.Name + " created" } };
                 }
+                var createdUser = _db.Users.FirstOrDefault(u => u.Email.Equals(user.Email));
+                if (createdUser == null)
+                {
+                    return new Dictionary<int, string> { { 400, "Unknown error" } };
+                }
+                createdUser.VerificationToken = _authService.GenerateToken(createdUser, "verify");
+                _db.SaveChanges();
+                return result;
             }
+        }
+
+        private bool validateEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false;
+            }
+            try
+            {
+                var address = new System.Net.Mail.MailAddress(email);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
 
         private void SetDefaultValues(User user)
@@ -137,9 +194,17 @@ namespace Eucyon_Tribes.Services
             return true;
         }
 
-        public List<UserResponseDto> ListAllUsers()
+        public List<UserResponseDto> ListAllUsers(int page, int itemCount)
         {
-            List<User> usersInDB = _db.Users.ToList();
+            if (itemCount < 1) itemCount = 20;
+            if (page < 1) page = 1;
+            int totalCount = _db.Users.Count();
+            if (totalCount < page * itemCount)
+            {
+                if (totalCount % itemCount == 0) page = totalCount / itemCount;
+                else page = totalCount / itemCount + 1;
+            }
+            List<User> usersInDB = _db.Users.OrderByDescending(u => u.Id).Skip((page - 1) * itemCount).Take(itemCount).ToList();
             List<UserResponseDto> users = new();
             foreach (User user in usersInDB)
             {
@@ -272,6 +337,6 @@ namespace Eucyon_Tribes.Services
                 userDetailed.Add(u);
             }
             return userDetailed;
-        }  
+        }
     }
 }

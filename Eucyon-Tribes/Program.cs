@@ -6,7 +6,6 @@ using Eucyon_Tribes.Factories;
 using Microsoft.OpenApi.Models;
 using Eucyon_Tribes.Extensions;
 using Eucyon_Tribes.Config;
-using Tribes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
@@ -22,8 +21,8 @@ if (env.Equals("Development"))
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 builder.Services.AddControllersWithViews();
-builder.Services.AddSwaggerGen(options =>
-{
+builder.Services.AddTransient<IAuthService, JWTService>();
+builder.Services.AddSwaggerGen(options => {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
@@ -40,8 +39,15 @@ builder.Services.AddTransient<IArmyFactory, ArmyFactory>();
 builder.Services.AddTransient<IArmyService, ArmyService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IKingdomService, KingdomService>();
+builder.Services.AddTransient<ILeaderboardService, LeaderboardService>();
+builder.Services.AddTransient<IPurchaseService, PurchaseService>();
 builder.Services.AddTransient<IEmailService, EmailService>();
-builder.Services.AddHostedService<TimeService>();
+builder.Services.AddTransient<ArmyServiceConfig>(s => new ArmyServiceConfig()
+{
+    ArmySizeLimit = 12
+}
+);
+
 
 var app = builder.Build();
 

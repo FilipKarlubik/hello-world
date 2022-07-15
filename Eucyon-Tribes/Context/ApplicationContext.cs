@@ -50,6 +50,12 @@ namespace Eucyon_Tribes.Context
                 .IsRequired(true)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
+            modelBuilder.Entity<World>()
+                .HasMany(w => w.Locations)
+                .WithOne(k => k.World)
+                .IsRequired(true)
+                .OnDelete(DeleteBehavior.Cascade); 
+
             modelBuilder.Entity<Building>()
                 .HasDiscriminator<string>("Building Type")
                 .HasValue<Barracks>("Barracks")

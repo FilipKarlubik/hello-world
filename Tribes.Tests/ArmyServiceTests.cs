@@ -4,7 +4,6 @@ using Eucyon_Tribes.Models.DTOs.ArmyDTOs;
 using Eucyon_Tribes.Models.Resources;
 using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -23,16 +22,16 @@ namespace Tribes.Tests
         public ApplicationContext Context;
         public ArmyService ArmyService;
         public Mock<IArmyFactory> ArmyFactory;
-        public IConfiguration Config;
 
         public ArmyServiceTests()
         {
-            Config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
+            ArmyServiceConfig armyServiceConfig = new ArmyServiceConfig();
+            armyServiceConfig.ArmySizeLimit = 12;
             Context = new ApplicationContext(options);
             Context.Database.EnsureDeleted();
             Context.Database.EnsureCreated();
             ArmyFactory = new Mock<IArmyFactory>();
-            ArmyService = new ArmyService(ArmyFactory.Object, Context,Config);
+            ArmyService = new ArmyService(ArmyFactory.Object, Context, armyServiceConfig);
             User user = new User();
             user.Name = "test";
             user.Email = "test";

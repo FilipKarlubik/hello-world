@@ -1,6 +1,4 @@
-﻿using Eucyon_Tribes.Context;
-using Eucyon_Tribes.Models;
-using Eucyon_Tribes.Models.Buildings;
+﻿using Eucyon_Tribes.Models.Buildings;
 using Eucyon_Tribes.Models.Resources;
 using System;
 using System.Collections.Generic;
@@ -10,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Tribes.Tests.SeedData
 {
-    public class BuildingControllerTestsSeedData
+    public class BuildingControllerTestsSeedDataNoResources
     {
         public static void PopulateTestData(ApplicationContext _db)
         {
@@ -23,7 +21,7 @@ namespace Tribes.Tests.SeedData
             var kingdom = new Kingdom() { Name = "Aden" };
             _db.Kingdoms.Add(kingdom);
 
-            user.Kingdom = kingdom;            
+            user.Kingdom = kingdom;
 
             var mine = new Mine()
             {
@@ -39,30 +37,14 @@ namespace Tribes.Tests.SeedData
                 StartedAt = DateTime.Today,
                 Production = 15,
             };
-            var tonwhall = new TownHall()
-            {
-                Level = 2,
-                Hp = 1000,
-                StartedAt = DateTime.Today,
-                Production = 4,
-            };
-            var barracks = new Barracks()
-            {
-                Level = 2,
-                Hp = 600,
-                StartedAt = DateTime.Today,
-                Production = 2,
-            };
             _db.Buildings.Add(mine);
             _db.Buildings.Add(sawmill);
-            _db.Buildings.Add(tonwhall);
-            _db.Buildings.Add(barracks);
 
-            var gold = new Gold() { Amount = 500 };
-            var wood = new Wood() { Amount = 500 };
-            var food = new Food() { Amount = 500 };
-            var soldier = new Soldier() { Amount = 25 };
-            var people = new People() { Amount = 500 };
+            var gold = new Gold() { Amount = 0 };
+            var wood = new Wood() { Amount = 0 };
+            var food = new Food() { Amount = 0 };
+            var soldier = new Soldier() { Amount = 0 };
+            var people = new People() { Amount = 0 };
             _db.Resources.Add(gold);
             _db.Resources.Add(wood);
             _db.Resources.Add(food);
@@ -72,8 +54,6 @@ namespace Tribes.Tests.SeedData
             kingdom.Buildings = new List<Building>();
             kingdom.Buildings.Add(mine);
             kingdom.Buildings.Add(sawmill);
-            kingdom.Buildings.Add(tonwhall);
-            kingdom.Buildings.Add(barracks);
             kingdom.Resources = new List<Resource>();
             kingdom.Resources.Add(gold);
             kingdom.Resources.Add(wood);

@@ -71,10 +71,29 @@ namespace Eucyon_Tribes.Controllers
                     return BadRequest(new ErrorDTO("Invalid user"));
                 case "FullKingdom":
                     return BadRequest(new ErrorDTO("This Kingdom is full"));
-                case "WrongResources":
-                    return BadRequest(new ErrorDTO("Insufficient resources"));
                 case "WrongBuilding":
                     return BadRequest(new ErrorDTO("Invalid building"));
+                case "NoResources":
+                    return BadRequest(new ErrorDTO("Insufficient resources"));
+            }
+            return Ok(response);
+        }
+
+        [HttpGet("buildings/upgrade/{id}")]
+        public IActionResult Upgrade(int id, [FromHeader] int userId)
+        {
+            var response = _buildingService.UpgradeBuilding(id, userId);
+
+            switch (response.Status)
+            {
+                case "WrongUser":
+                    return BadRequest(new ErrorDTO("Invalid user"));
+                case "WrongBuilding":
+                    return BadRequest(new ErrorDTO("Invalid building"));
+                case "TownHallLowLevel":
+                    return BadRequest(new ErrorDTO("Cannot upgrade. Building is at the same level as Townhall"));
+                case "NoResources":
+                    return BadRequest(new ErrorDTO("Insufficient resources"));
             }
             return Ok(response);
         }

@@ -71,9 +71,9 @@ namespace Tribes.Tests.KingdomControllerTests
         [Fact]
         public async Task KingdomController_Index_List()
         {
-            Service.Setup(i => i.GetKingdoms()).Returns(new KingdomsDTO[0]);
+            Service.Setup(i => i.GetKingdoms(0,0)).Returns(new KingdomsDTO[0]);
 
-            var result = (ObjectResult)Controller.Index();
+            var result = (ObjectResult)Controller.Index(0,0);
 
             Assert.True(result.StatusCode == (int)System.Net.HttpStatusCode.OK);
         }

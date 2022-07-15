@@ -1,10 +1,6 @@
 ﻿using Eucyon_Tribes.Factories;
+using Eucyon_Tribes.Factories;
 using Eucyon_Tribes.Models.Resources;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tribes.Tests
 {

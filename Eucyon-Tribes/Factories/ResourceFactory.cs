@@ -1,5 +1,4 @@
-﻿using Eucyon_Tribes.Models;
-using Eucyon_Tribes.Models.Resources;
+﻿using Eucyon_Tribes.Models.Resources;
 
 namespace Eucyon_Tribes.Factories
 {

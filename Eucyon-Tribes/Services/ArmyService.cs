@@ -14,15 +14,15 @@ namespace Eucyon_Tribes.Services
         private readonly IArmyFactory _armyFactory;
         private readonly ApplicationContext _db;
         public String ErrorMessage { get; private set; }
-        private readonly IConfiguration _config;
+        public ArmyServiceConfig armyServiceConfig {get;}
         public int ArmySizeLimit { get; }
 
-        public ArmyService(IArmyFactory armyFactory, ApplicationContext db, IConfiguration configuration)
+        public ArmyService(IArmyFactory armyFactory, ApplicationContext db, ArmyServiceConfig armyServiceConfig)
         {
             this._db = db;
             this._armyFactory = armyFactory;
-            this._config = configuration;
-            ArmySizeLimit = int.Parse(_config["ARMY_SIZE_LIMIT"]);
+            armyServiceConfig = armyServiceConfig;
+            ArmySizeLimit = armyServiceConfig.ArmySizeLimit;
         }
 
         //kingdom id later to be replaced by some sort of user verification

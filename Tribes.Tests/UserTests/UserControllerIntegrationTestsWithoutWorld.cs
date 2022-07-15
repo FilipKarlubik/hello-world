@@ -1,11 +1,6 @@
 ﻿using Eucyon_Tribes.Models.UserModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TribesTest;
 
 namespace Tribes.Tests.UserTests
@@ -28,7 +23,7 @@ namespace Tribes.Tests.UserTests
             var body = response.Content.ReadAsStringAsync().Result;
             var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
-            Assert.Equal(400, (int)response.StatusCode);
+            Assert.Equal(500, (int)response.StatusCode);
             Assert.Equal(expected.Error, result["error"].ToString());
         }
     }
