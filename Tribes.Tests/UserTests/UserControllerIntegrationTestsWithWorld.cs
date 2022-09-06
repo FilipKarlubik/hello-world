@@ -13,7 +13,8 @@ namespace Tribes.Tests.UserTests
 
         public UserControllerIntegrationTestsWithWorld() : base(Worlds)
         {
-            
+            var accessToken = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJQbGF5ZXIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJmaWxpcC5mZmZrYXJsdWJpa0BnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiSHVydmluZWsiLCJleHAiOjE2NTkzNzU5Nzl9.UVERY5u6uVTNlnfsRXAMaklgh95WvYd9cnQ9PwPh36I";
+            _client.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
         }
 
         [Fact]

@@ -4,8 +4,8 @@
     {
         public static void PopulateTestData(ApplicationContext _db, string worldCount)
         {
-            //_db.Database.EnsureDeleted();
-            //_db.Database.EnsureCreated();
+            _db.Database.EnsureDeleted();
+            _db.Database.EnsureCreated();
             if (worldCount.Equals("1") || worldCount.Equals("3"))
             {
                 var world = new World() { Name = "MyWorld", Kingdoms = new List<Kingdom>(), Locations = new List<Location>() };

@@ -14,8 +14,8 @@ namespace Tribes.Tests.SeedData
     {
         public static void PopulateTestData(ApplicationContext _db)
         {
-            //_db.Database.EnsureDeleted();
-            //_db.Database.EnsureCreated();
+            _db.Database.EnsureDeleted();
+            _db.Database.EnsureCreated();
 
             var user = new User() { Email = "john@john.com", PasswordHash = "Johny123", Name = "John", ForgottenPasswordToken = String.Empty, VerificationToken = String.Empty };
             _db.Users.Add(user);

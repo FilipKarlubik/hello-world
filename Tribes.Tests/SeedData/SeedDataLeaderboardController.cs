@@ -8,8 +8,8 @@ namespace Tribes.Tests.SeedData
     {
         public static void PopulateTestData(ApplicationContext appContext, bool includeKingdoms)
         {
-            //appContext.Database.EnsureDeleted();
-            //appContext.Database.EnsureCreated();
+            appContext.Database.EnsureDeleted();
+            appContext.Database.EnsureCreated();
             User user1 = new User() { Name = "abcde", PasswordHash = "12345678", Email = "myemail@gmail.com", VerificationToken = String.Empty, ForgottenPasswordToken = String.Empty };
             User user2 = new User() { Name = "edcba", PasswordHash = "87654321", Email = "emailofmine@gmail.com", VerificationToken = String.Empty, ForgottenPasswordToken = String.Empty };
             User user3 = new User() { Name = "zyxwv", PasswordHash = "18273645", Email = "justemail@gmail.com", VerificationToken = String.Empty, ForgottenPasswordToken = String.Empty };

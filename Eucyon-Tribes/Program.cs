@@ -29,7 +29,7 @@ if (env != null && env.Equals("Development"))
     builder.Logging.AddSerilog(logger);
 }
 
-else if (env != null && env.Equals("Production"))
+if (env != null && env.Equals("Production"))
 {
     var connectionString = builder.Configuration.GetConnectionString("AzureSql");
     var sb = new SqlConnectionStringBuilder(connectionString);

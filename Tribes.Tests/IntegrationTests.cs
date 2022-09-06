@@ -27,18 +27,14 @@ namespace TribesTest
             } 
             authService = new JWTService(configuration);
 
-            var appFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(host =>
+            var appFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
-                host.ConfigureServices(services =>
+                builder.ConfigureServices(services =>
                 {
-                    var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType ==
-                        typeof(DbContextOptions<ApplicationContext>));
-
-                    services.Remove(descriptor);
+                    services.RemoveAll(typeof(ApplicationContext));
                     services.AddDbContext<ApplicationContext>(options =>
                     {
-                        options.UseInMemoryDatabase("InMemoryDB");
+                        options.UseInMemoryDatabase(databaseName: "IntegrationTests");
                     });
                     var sp = services.BuildServiceProvider();
                     using (var scope = sp.CreateScope())
@@ -117,8 +113,6 @@ namespace TribesTest
                 });
             });
             _client = appFactory.CreateClient();
-            var accessToken = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImZmZmZmQGdqZ2Znby5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiRmlsaXAiLCJleHAiOjE2NTkxNzIzNzR9.5o0heGQ4RmmADHc0aT_9IEvtJ8_cBafBtZ5Qkf5aRGk";
-            _client.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
         }
     }
 }

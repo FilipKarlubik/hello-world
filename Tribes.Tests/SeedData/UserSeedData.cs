@@ -6,8 +6,8 @@
         public static void PopulateTestData(ApplicationContext _db, string dbFillCode)
         {
 
-            //_db.Database.EnsureDeleted();
-            //_db.Database.EnsureCreated();
+            _db.Database.EnsureDeleted();
+            _db.Database.EnsureCreated();
 
             var user1 = new User()
             {
