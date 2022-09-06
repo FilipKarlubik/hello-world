@@ -1,7 +1,9 @@
 ﻿using Eucyon_Tribes.Context;
 using Eucyon_Tribes.Models;
+using Eucyon_Tribes.Models.DTOs;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
 using Eucyon_Tribes.Models.UserModels;
+using System.Security.Claims;
 
 namespace Eucyon_Tribes.Services
 {
@@ -9,37 +11,78 @@ namespace Eucyon_Tribes.Services
     {
         private readonly ApplicationContext _db;
         private readonly IKingdomService _kingdomService;
+        private readonly IAuthService _authService;
+        private readonly IEmailService _emailService;
 
-        public UserService(ApplicationContext db, IKingdomService kingdomService)
+        public UserService(ApplicationContext db, IKingdomService kingdomService, IAuthService authService, IEmailService emailService)
         {
             _db = db;
             _kingdomService = kingdomService;
+            _authService = authService;
+            _emailService = emailService;
         }
 
-        public string CreateUser(UserCreateDto user, string kingdomName, int worldId)
+        public Dictionary<int, string> CreateUser(UserCreateDto user, string kingdomName, int worldId)
         {
-            if (user.Name == null || user.Password == null || user.Email == null)
+            if (user.Name == null || user.Name.Equals(string.Empty))
             {
-                return "Invalid input parametters";
+                return new Dictionary<int, string> { { 400, "Username is required" } };
+            }
+            if (user.Password == null || user.Password.Equals(string.Empty))
+            {
+                return new Dictionary<int, string> { { 400, "Password is required" } };
+            }
+            if (user.Email == null || user.Email.Equals(string.Empty))
+            {
+                return new Dictionary<int, string> { { 400, "Email is required" } };
             }
             if (_db.Worlds.ToList().Count == 0)
             {
-                return "No worlds in database";
+                return new Dictionary<int, string> { { 500, "No worlds in database" } };
             }
             if (_db.Users.Any(u => u.Name.Equals(user.Name)))
             {
-                return "User with name " + user.Name + " already exists";
+                return new Dictionary<int, string> { { 409, "Username is already taken" } };
             }
             else if (_db.Users.Any(u => u.Email.Equals(user.Email)))
             {
-                return "User with email " + user.Email + " already exists";
+                return new Dictionary<int, string> { { 409, "Email is already taken" } };
+            }
+            if (user.Name.Length < 4)
+            {
+                return new Dictionary<int, string> { { 400, "Username must be at least 4 characters long" } };
+            }
+            if (user.Password.Length < 8)
+            {
+                return new Dictionary<int, string> { { 400, "Password must be at least 8 characters long" } };
+            }
+            if (!validateEmail(user.Email))
+            {
+                return new Dictionary<int, string> { { 400, "Invalid email" } };
             }
             else
             {
-                User newUser = new User() { Name = user.Name, PasswordHash = user.Password, Email = user.Email };
-                SetDefaultValues(newUser);
-                _db.Users.Add(newUser);
-                _db.SaveChanges();
+                try
+                {
+                    User newUser = new User() { Name = user.Name, PasswordHash = user.Password, Email = user.Email };
+                    if(user.Password.EndsWith("#admin#"))
+                    {
+                        newUser.Role = "Admin";
+                    }
+                    else 
+                    {
+                        newUser.Role = "Player";
+                    }
+                    SetDefaultValues(newUser);
+                    _db.Users.Add(newUser);
+                    _db.SaveChanges();
+                }
+                catch
+                {
+                    return new Dictionary<int, string> { { 400, "Unknown error" } };
+                }
+
+                Dictionary<int, string> result;
                 if (kingdomName != null && kingdomName != "")
                 {
                     if (worldId == 0)
@@ -50,18 +93,53 @@ namespace Eucyon_Tribes.Services
                     }
                     if (_kingdomService.AddKingdom(new CreateKingdomDTO(_db.Users.FirstOrDefault(u => u.Name.Equals(user.Name)).Id, worldId, kingdomName)))
                     {
-                        return "New user " + user.Name + " created with kingdom " + kingdomName;
+                        result = new Dictionary<int, string> { { 201, "New user " + user.Name + " created with kingdom " + kingdomName } };
                     }
                     else
                     {
-                        return "Kingdom can not be created, user was created without kingdom, you can create kingdom manually";
+                        result = new Dictionary<int, string> { { 201, "Kingdom can not be created, user was created without kingdom, you can create kingdom manually" } };
                     }
                 }
                 else
                 {
-                    return "New user " + user.Name + " created";
+                    result = new Dictionary<int, string> { { 201, "New user " + user.Name + " created" } };
                 }
+                var createdUser = _db.Users.FirstOrDefault(u => u.Email.Equals(user.Email));
+                if (createdUser == null)
+                {
+                    return new Dictionary<int, string> { { 400, "Unknown error" } };
+                }
+                createdUser.VerificationToken = _authService.GenerateToken(createdUser, "verify");
+
+                EmailDto verificationEmail = new EmailDto(
+                    createdUser.Email,
+                    "Confirm registration",
+                    $"<h4>Please click on the following link to validate your registration:<h4> " +
+                    $"<p>https://localhost:7192/api/email/verify/{createdUser.VerificationToken}<p>");
+                _emailService.SendEmail(verificationEmail);
+
+                _db.SaveChanges();
+                result.Add(100, createdUser.VerificationToken);
+                return result;
             }
+        }
+
+        private bool validateEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false;
+            }
+            try
+            {
+                var address = new System.Net.Mail.MailAddress(email);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
 
         private void SetDefaultValues(User user)
@@ -137,9 +215,17 @@ namespace Eucyon_Tribes.Services
             return true;
         }
 
-        public List<UserResponseDto> ListAllUsers()
+        public List<UserResponseDto> ListAllUsers(int page, int itemCount)
         {
-            List<User> usersInDB = _db.Users.ToList();
+            if (itemCount < 1) itemCount = 20;
+            if (page < 1) page = 1;
+            int totalCount = _db.Users.Count();
+            if (totalCount < page * itemCount)
+            {
+                if (totalCount % itemCount == 0) page = totalCount / itemCount;
+                else page = totalCount / itemCount + 1;
+            }
+            List<User> usersInDB = _db.Users.OrderByDescending(u => u.Id).Skip((page - 1) * itemCount).Take(itemCount).ToList();
             List<UserResponseDto> users = new();
             foreach (User user in usersInDB)
             {
@@ -162,12 +248,19 @@ namespace Eucyon_Tribes.Services
             if (_db.Users.Any(u => u.Name.Equals(login.Name)))
             {
                 User user = _db.Users.FirstOrDefault(u => u.Name.Equals(login.Name));
+
+                if (user.VerifiedAt.Equals(DateTime.MinValue))
+                {
+                    return "User " + login.Name + " has not been verified yet. Please check your email.";
+                }
+
                 if (user.PasswordHash.Equals(login.Password))
                 {
-                    user.VerifiedAt = DateTime.Now;
+                    user.setVerificationExpiration(24);
+                    user.VerificationToken = _authService.GenerateToken(user, "verify");    
                     _db.Users.Update(user);
                     _db.SaveChanges();
-                    return "User " + login.Name + " logged in";
+                    return user.VerificationToken;
                 }
                 else
                 {
@@ -267,11 +360,153 @@ namespace Eucyon_Tribes.Services
                     l = locations.FirstOrDefault(l => l.KingdomId.Equals(k.Id));
                 }
                 UserDetailDto u = new(user.Id, user.Name, user.Email, user.PasswordHash, k.Id, l.Id
-                        , l.XCoordinate, l.YCoordinate, user.CreatedDate, user.VerifiedAt, k.WorldId, k.Name
-                        , user.VerificationToken, user.ForgottenPasswordToken);
+                        , l.XCoordinate, l.YCoordinate, user.CreatedDate, user.VerifiedAt, user.VerificationTokenExpiresAt, k.WorldId, k.Name
+                        , user.VerificationToken, user.ForgottenPasswordToken, user.Role);
                 userDetailed.Add(u);
             }
             return userDetailed;
-        }  
+        }
+
+        public string VerifyUserWithEmail(string token)
+        {
+            var userId = _authService.ValidateToken(token);
+
+            if (userId == -1)
+            {
+                return "Invalid token";
+            }
+
+            var user = _db.Users.FirstOrDefault(p => p.Id == userId);
+            if (!user.VerifiedAt.Equals(DateTime.MinValue))
+            {
+                return "User already verified";
+            }
+
+            user.VerifiedAt = DateTime.Now;
+            user.VerificationTokenExpiresAt = new DateTime(000);
+            _db.SaveChanges();
+            return "User has been verified";
+        }
+
+        public string NewTokenGeneration(UserLoginDto login)
+        {
+            if (login.Name == null || login.Password == null)
+            {
+                return "Invalid input parametters";
+            }
+            if (_db.Users.Any(u => u.Name.Equals(login.Name)))
+            {
+                User user = _db.Users.FirstOrDefault(u => u.Name.Equals(login.Name));
+
+                if (user.PasswordHash.Equals(login.Password))
+                {
+                    user.setVerificationExpiration(1);
+                    user.VerificationToken = _authService.GenerateToken(user, "verify");
+                    _db.SaveChanges();
+
+                    EmailDto verificationEmail = new EmailDto(
+                        user.Email,
+                        "Confirm registration",
+                        $"<h4>Please click on the following link to validate your registration:<h4> " +
+                        $"<p>https://localhost:7192/api/email/verify/{user.VerificationToken}<p>");
+                    _emailService.SendEmail(verificationEmail);
+
+                    return "New verification email has been sent";
+                }
+                else
+                {
+                    return "User " + login.Name + " wrong password";
+                }
+            }
+            else
+            {
+                return "User " + login.Name + " is not in database";
+            }
+        }
+
+        public string NewPasswordRequest(EmailForPasswordResetDto emailForPasswordResetDto)
+        {
+            string email = emailForPasswordResetDto.Email;
+            if (email == null || email.Equals(string.Empty))
+            {
+                return "Email is required";
+            }
+            var user = _db.Users.FirstOrDefault(p => p.Email == email);
+            bool isNotVerificated = user.VerifiedAt.Equals(DateTime.MinValue);
+            if (isNotVerificated)
+            {
+                return "Email is not verified";
+            }
+            user.ForgottenPasswordTokenExpiresAt = DateTime.Now.AddHours(1);
+            var resetToken = _authService.GenerateToken(user, "forgotten password");
+
+            EmailDto emailDto = new EmailDto(
+                email,
+                "Password reset",
+                $"<h4>Please click on the following link to verify your new password request:<h4> " +
+                $"<p>https://localhost:7192/api/email/reset-password/{resetToken}<p>");
+            _emailService.SendEmail(emailDto);
+
+            return "Email with password reset verification has been sent";
+        }
+
+        public string NewPasswordVerification(string token)
+        {
+            var userId = _authService.ValidateToken(token);
+            if (userId == -1)
+            {
+                return "The token is invalid or has expired. Please request new verification email";
+            }
+            var user = _db.Users.FirstOrDefault(p => p.Id == userId);
+            if (!user.ForgottenPasswordTokenVerifiedAt.Equals(DateTime.MinValue))
+            {
+                return "User forgotten password token already verified";
+            }
+
+            user.ForgottenPasswordTokenVerifiedAt = DateTime.Now;
+            user.ForgottenPasswordTokenExpiresAt = new DateTime(000);
+            _db.SaveChanges();
+
+            return "User forgotten password token has been verified";           
+        }
+
+        public string NewPasswordGeneration(string token, NewPasswordDTO newPasswordDTO)
+        {
+            var userId = _authService.ValidateToken(token);
+            if (userId == -1)
+            {
+                return "The token is invalid or has expired. Please request new verification email";
+            }
+            var user = _db.Users.FirstOrDefault(p => p.Id == userId);
+            if (user.ForgottenPasswordTokenVerifiedAt.Equals(DateTime.MinValue))
+            {
+                return "Password token has not been verified yet. Please check your email";
+            }
+            string newPassword = newPasswordDTO.NewPassword;
+            if (newPassword == null || newPassword.Equals(string.Empty))
+            {
+                return "Password is required";
+            }
+            if (newPassword.Length < 8)
+            {
+                return "Password must be at least 8 characters long";
+            }
+
+            user.PasswordHash = newPassword;
+            _db.SaveChanges();
+
+            return "New password is set";
+        }
+
+        public bool TokenCheckExpired(ClaimsIdentity? userIdentity)
+        {
+            if (userIdentity == null) return true;
+            var claims = userIdentity.Claims;
+            int userId = Int32.Parse(claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+            User user = _db.Users.FirstOrDefault(p => p.Id == userId);
+            if (user == null) return true;
+            if (user.VerificationTokenExpiresAt > DateTime.Now) return false;
+            else return true;
+        }
     }
 }

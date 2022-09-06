@@ -2,11 +2,11 @@
 {
     public class CreateArmyDTO
     {
-        public List<int> Units { get; }
+        public List<int> NumberOfUnitsByLevel { get; }
 
-        public CreateArmyDTO(List<int> units)
+        public CreateArmyDTO(List<int> numberOfUnitsByLevel)
         {
-            Units = units;
+            NumberOfUnitsByLevel = numberOfUnitsByLevel;
         }
     }
 }

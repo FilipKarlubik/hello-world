@@ -5,6 +5,6 @@ namespace Eucyon_Tribes.Factories
 {
     public interface IArmyFactory
     {
-        public Army CrateArmy(List<Soldier> soldiers, Kingdom kingdom);
+        public Army CrateArmy(List<Soldier> soldiers, Kingdom kingdom,int distance);
     }
 }

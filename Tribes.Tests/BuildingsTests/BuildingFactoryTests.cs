@@ -29,7 +29,7 @@ namespace Tribes.Tests.BuildingsTests
                 Level = 1,
                 Hp = 500,
                 StartedAt = DateTime.Today,
-                Production = 20,
+                Production = 2,
             };
             TownHall townHall1 = _buildingFactory.CreateTownHall();
 

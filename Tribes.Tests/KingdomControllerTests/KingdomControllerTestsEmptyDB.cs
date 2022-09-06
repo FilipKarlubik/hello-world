@@ -1,4 +1,5 @@
-﻿using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
+﻿using Eucyon_Tribes.Models.DTOs;
+using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace Tribes.Tests.KingdomControllerTests
 
         public KingdomControllerTestsEmptyDB() : base("")
         {
+           
         }
 
         [Fact]
@@ -24,7 +26,7 @@ namespace Tribes.Tests.KingdomControllerTests
         {
             KingdomsDTO[] expected = new KingdomsDTO[0];
 
-            var response = await _client.GetAsync("https://localhost:7192/api/kingdomrestcontroller/kingdoms");
+            var response = await _client.GetAsync("https://localhost:7192/api/kingdoms");
             var body = response.Content.ReadAsStringAsync().Result;
             var outputCheck = JsonSerializer.Deserialize<KingdomsDTO[]>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -35,7 +37,7 @@ namespace Tribes.Tests.KingdomControllerTests
         [Fact]
         public async Task KingdomControllerEmpty_Show_Error()
         {
-            var response = await _client.GetAsync("https://localhost:7192/api/kingdomrestcontroller/kingdoms/1");
+            var response = await _client.GetAsync("https://localhost:7192/api/kingdoms/1");
 
             Assert.Equal(404, (int)response.StatusCode);
         }
@@ -43,7 +45,17 @@ namespace Tribes.Tests.KingdomControllerTests
         [Fact]
         public async Task KingdomControllerEmpty_Store_Error()
         {
-            var response = await _client.PostAsync("https://localhost:7192/api/kingdomrestcontroller/kingdoms/", JsonContent.Create(new CreateKingdomDTO(1, 1, "test")));
+            var response = await _client.PostAsync("https://localhost:7192/api/kingdoms/", JsonContent.Create(new CreateKingdomDTO(1, 1, "test")));
+
+            Assert.Equal(400, (int)response.StatusCode);
+        }
+
+        [Fact]
+        public async Task KingdomControllerEmpty_GetResources_Error()
+        {
+            var response = await _client.GetAsync("https://localhost:7192/api/kingdoms/resources/1");
+            var body = response.Content.ReadAsStringAsync().Result;
+            var outputCheck = JsonSerializer.Deserialize<ErrorDTO>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             Assert.Equal(400, (int)response.StatusCode);
         }

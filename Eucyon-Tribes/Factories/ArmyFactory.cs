@@ -5,7 +5,14 @@ namespace Eucyon_Tribes.Factories
 {
     public class ArmyFactory : IArmyFactory
     {
-        public Army CrateArmy(List<Soldier> soldiers, Kingdom kingdom)
+        private readonly IConfiguration _config;
+
+        public ArmyFactory(IConfiguration config)
+        {
+            _config = config;
+        }
+
+        public Army CrateArmy(List<Soldier> soldiers, Kingdom kingdom, int distance)
         {
             Army army = new Army();
             foreach (Soldier soldier in soldiers)
@@ -14,7 +21,8 @@ namespace Eucyon_Tribes.Factories
             }
             army.Soldiers = soldiers;
             army.Kingdom = kingdom;
-            army.Type = "Attack";
+            TimeSpan time = new TimeSpan(0, 0, 2 * (distance * int.Parse(Environment.GetEnvironmentVariable("DistanceMultiplier"))), 0);
+            army.DisbandsAt = DateTime.Now.Add(time);
             return army;
         }
     }

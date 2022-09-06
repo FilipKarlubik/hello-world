@@ -1,10 +1,10 @@
 ﻿using Eucyon_Tribes.Controllers;
-using Eucyon_Tribes.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Eucyon_Tribes.Models.UserModels;
 using Microsoft.EntityFrameworkCore;
 using Eucyon_Tribes.Factories;
+using Microsoft.Extensions.Configuration;
 
 namespace Tribes.Tests.UserTests
 {
@@ -22,17 +22,31 @@ namespace Tribes.Tests.UserTests
         public KingdomFactory kingdomFactory;
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
-        public ArmyFactory armyFactory;
+        public IAuthService authService;
+        public ArmyFactory armyFactory; 
+        public BattleFactory battleFactory;
+        public BattleService battleService;
+        public IConfiguration config;
+        public ConfigRuleService configRuleService;
+        public EmailService emailService;
 
         public UserControllerTests()
         {
             db = new ApplicationContext(options);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
-            armyFactory = new ArmyFactory();
-            kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
-            userService = new UserService(db, kingdomService);
+            kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory, configRuleService);
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json")
+                .AddUserSecrets<Program>().Build();
+            foreach (var child in config.GetChildren())
+            {
+                Environment.SetEnvironmentVariable(child.Key, child.Value);
+            }
+            battleFactory = new BattleFactory(config);
+            authService = new JWTService(config);
+            configRuleService = new ConfigRuleService(db, config);
+            kingdomService = new KingdomService(db, kingdomFactory);
+            userService = new UserService(db, kingdomService, authService, emailService);
             userRestController = new UserRestController(userService);
 
             var user1 = new User()
@@ -52,7 +66,9 @@ namespace Tribes.Tests.UserTests
                 VerificationToken = "",
                 ForgottenPasswordToken = ""
             };
-            db.Worlds.Add(new World());
+            user1.Role = "Player";
+            user2.Role = "Player";
+            db.Worlds.Add(new World() { Name = "world" });
             db.Users.Add(user1);
             db.Users.Add(user2);
             db.SaveChanges();
@@ -105,7 +121,7 @@ namespace Tribes.Tests.UserTests
             mockUserService.Setup(i => i.ShowUser(It.IsAny<int>())).Returns<UserResponseDto>(null);
             var userRestController = new UserRestController(mockUserService.Object);
             // Act
-            var result = (ObjectResult)userRestController.Index();
+            var result = (ObjectResult)userRestController.Index(0,0);
             // Assert
             Assert.Equal(statuscode, result.StatusCode);
         }
@@ -116,10 +132,10 @@ namespace Tribes.Tests.UserTests
         {
             // Arrange
             var mockUserService = new Mock<IUserService>();
-            mockUserService.Setup(i => i.ListAllUsers()).Returns(new List<UserResponseDto>());
+            mockUserService.Setup(i => i.ListAllUsers(0,0)).Returns(new List<UserResponseDto>());
             var userRestController = new UserRestController(mockUserService.Object);
             // Act
-            var result = (ObjectResult)userRestController.Index();
+            var result = (ObjectResult)userRestController.Index(0,0);
             // Assert
             Assert.Equal(statuscode, result.StatusCode);
         }
@@ -130,10 +146,10 @@ namespace Tribes.Tests.UserTests
         {
             // Arrange
             var mockUserService = new Mock<IUserService>();
-            mockUserService.Setup(i => i.ListAllUsers()).Returns<UserResponseDto>(null);
+            mockUserService.Setup(i => i.ListAllUsers(0,0)).Returns<UserResponseDto>(null);
             var userRestController = new UserRestController(mockUserService.Object);
             // Act
-            var result = (ObjectResult)userRestController.Index();
+            var result = (ObjectResult)userRestController.Index(0,0);
             // Assert
             Assert.Equal(statuscode, result.StatusCode);
         }

@@ -6,15 +6,13 @@ namespace Eucyon_Tribes.Models.DTOs.ArmyDTOs
     {
         public int Id { get; }
         public int Owner { get; }
-        public string Type { get; } = null!;
-        public List<SoldierDTO> Units { get; }
+        public List<int> NumberOfUnitsByLevel { get; }
 
-        public ArmyDTO(int id, int owner, string type, List<SoldierDTO> units)
+        public ArmyDTO(int id, int owner, List<int> numberOfUnitsByLevel)
         {
             Id = id;
             Owner = owner;
-            Type = type;
-            Units = units;
+            NumberOfUnitsByLevel = numberOfUnitsByLevel;
         }
     }
 }

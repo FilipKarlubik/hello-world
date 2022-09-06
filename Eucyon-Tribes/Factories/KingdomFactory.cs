@@ -1,6 +1,7 @@
 ﻿using Eucyon_Tribes.Context;
 using Eucyon_Tribes.Models;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
+using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eucyon_Tribes.Factories
@@ -10,12 +11,15 @@ namespace Eucyon_Tribes.Factories
         private readonly ApplicationContext _db;
         private readonly IResourceFactory _resourceFactory;
         private readonly IBuildingFactory _buildingFactory;
+        private readonly RuleService _ruleService;
 
-        public KingdomFactory(ApplicationContext db, IResourceFactory resourceFactory, IBuildingFactory buildingFactory)
+        public KingdomFactory(ApplicationContext db, IResourceFactory resourceFactory, IBuildingFactory buildingFactory
+            , RuleService ruleService)
         {
             _db = db;
             _resourceFactory = resourceFactory;
             _buildingFactory = buildingFactory;
+            _ruleService = ruleService;
         }
 
         public bool CreateKingdom(User user, String name, World world)
@@ -49,7 +53,8 @@ namespace Eucyon_Tribes.Factories
                         {
                             if (spot == 0)
                             {
-                                Kingdom kingdom = new Kingdom(name, user.Id, world.Id);             
+                                Kingdom kingdom = new Kingdom(name, user.Id, world.Id);
+                                kingdom.CanBeAttackedAt = DateTime.Now.AddDays(2.0);
                                 _db.Kingdoms.Add(kingdom);
                                 _db.SaveChanges();
                                 var kingdomId = _db.Kingdoms.FirstOrDefault(k => k.UserId.Equals(user.Id)).Id;
@@ -86,7 +91,8 @@ namespace Eucyon_Tribes.Factories
             }
             else
             {
-                Kingdom kingdom = new Kingdom(request.Name, request.UserId, request.WorldId);  
+                Kingdom kingdom = new Kingdom(request.Name, request.UserId, request.WorldId);
+                kingdom.CanBeAttackedAt = DateTime.Now.AddDays(2.0);
                 _db.Kingdoms.Add(kingdom);
                 _db.SaveChanges();
                 var kingdomId = _db.Kingdoms.FirstOrDefault(k => k.UserId.Equals(request.UserId)).Id;
@@ -100,10 +106,10 @@ namespace Eucyon_Tribes.Factories
         private void AddResourcesToNewKingdom(Location location)
         {
             Resource gold = _resourceFactory.GetGoldResource();
-            gold.Amount = 1000;
+            gold.Amount = _ruleService.getKingdomInitialGoldAmount();
             gold.KingdomId = location.KingdomId;
             Resource food = _resourceFactory.GetFoodResource();
-            food.Amount = 1000;
+            food.Amount = _ruleService.getKingdomInitialFoodAmount();
             food.KingdomId = location.KingdomId;
             Resource people = _resourceFactory.GetPeopleResource();
             people.KingdomId = location.KingdomId;

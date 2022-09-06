@@ -23,7 +23,9 @@ namespace Tribes.Tests.KingdomControllerTests
                .UseInMemoryDatabase(databaseName: "KingdomServiceTest").Options;
         public ApplicationContext Context;
         public Mock<IKingdomService> Service;
+        public Mock<IBattleService> Service2;
         public KingdomRestController Controller;
+        public Mock<IResourceService> ResourceService;
 
         public void Dispose()
         {
@@ -39,14 +41,17 @@ namespace Tribes.Tests.KingdomControllerTests
         public KingdomControllerUnitTests()
         {
             Context = new ApplicationContext(options);
-            Service = new Mock<IKingdomService>();    
-            Controller = new KingdomRestController(Service.Object);
+            Service = new Mock<IKingdomService>();
+            Service2 = new Mock<IBattleService>();
+            ResourceService = new Mock<IResourceService>();
+            Controller = new KingdomRestController(Service.Object, ResourceService.Object, Service2.Object);
             User User = new User();
             User.Name = "test";
             User.Email = "test";
             User.PasswordHash = "test";
             User.ForgottenPasswordToken = "test";
             User.VerificationToken = "test";
+            User.Role = "Player";
             Context.Users.Add(User);
             User User2 = new User();
             User2.Name = "test";
@@ -54,6 +59,7 @@ namespace Tribes.Tests.KingdomControllerTests
             User2.PasswordHash = "test";
             User2.ForgottenPasswordToken = "test";
             User2.VerificationToken = "test";
+            User2.Role = "Player";
             Context.Users.Add(User2);
             User User3 = new User();
             User3.Name = "test";
@@ -61,8 +67,9 @@ namespace Tribes.Tests.KingdomControllerTests
             User3.PasswordHash = "test";
             User3.ForgottenPasswordToken = "test";
             User3.VerificationToken = "test";
+            User3.Role = "Player";
             Context.Users.Add(User3);
-            World World = new World();
+            World World = new World() { Name = "world" };
             Context.Worlds.Add(World);
             Context.SaveChanges();
         }
@@ -71,9 +78,9 @@ namespace Tribes.Tests.KingdomControllerTests
         [Fact]
         public async Task KingdomController_Index_List()
         {
-            Service.Setup(i => i.GetKingdoms()).Returns(new KingdomsDTO[0]);
+            Service.Setup(i => i.GetKingdoms(0,0)).Returns(new KingdomsDTO[0]);
 
-            var result = (ObjectResult)Controller.Index();
+            var result = (ObjectResult)Controller.Index(0,0);
 
             Assert.True(result.StatusCode == (int)System.Net.HttpStatusCode.OK);
         }

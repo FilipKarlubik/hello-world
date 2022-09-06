@@ -1,10 +1,7 @@
-using Eucyon_Tribes.Context;
 using Eucyon_Tribes.Factories;
-using Eucyon_Tribes.Models;
-using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
+using Microsoft.Extensions.Configuration;
 
 namespace TribesTest
 {
@@ -19,22 +16,30 @@ namespace TribesTest
         public KingdomFactory Factory;
         public ResourceFactory ResourceFactory;
         public BuildingFactory BuildingFactory;
-        public ArmyFactory ArmyFactory;
+        public ConfigRuleService RuleService;
+        public IConfiguration Config;
 
         public KingdomServiceTest()
         {
             Context = new ApplicationContext(options);
             ResourceFactory = new ResourceFactory();
             BuildingFactory = new BuildingFactory();
-            ArmyFactory = new ArmyFactory();
-            Factory = new KingdomFactory(Context, ResourceFactory, BuildingFactory);
-            Service = new KingdomService(Context, Factory,ArmyFactory);
+            var Config = new ConfigurationBuilder().AddJsonFile("appsettings.json")
+                .AddUserSecrets<Program>().Build();
+            foreach (var child in Config.GetChildren())
+            {
+                Environment.SetEnvironmentVariable(child.Key, child.Value);
+            }
+            RuleService = new ConfigRuleService(Context,Config);
+            Factory = new KingdomFactory(Context, ResourceFactory, BuildingFactory,RuleService);
+            Service = new KingdomService(Context, Factory);
             User User = new User();
             User.Name = "test";
             User.Email = "test";
             User.PasswordHash = "test";
             User.ForgottenPasswordToken = "test";
             User.VerificationToken = "test";
+            User.Role = "Player";
             Context.Users.Add(User);
             User User2 = new User();
             User2.Name = "test";
@@ -42,6 +47,7 @@ namespace TribesTest
             User2.PasswordHash = "test";
             User2.ForgottenPasswordToken = "test";
             User2.VerificationToken = "test";
+            User2.Role = "Player";
             Context.Users.Add(User2);
             User User3 = new User();
             User3.Name = "test";
@@ -49,21 +55,16 @@ namespace TribesTest
             User3.PasswordHash = "test";
             User3.ForgottenPasswordToken = "test";
             User3.VerificationToken = "test";
+            User3.Role = "Player";
             Context.Users.Add(User3);
-            World World = new World();
+            World World = new World() { Name = "world" };
             Context.Worlds.Add(World);
             Context.SaveChanges();
         }
         public void Dispose()
         {
-            foreach (var kingdom in Context.Kingdoms)
-                Context.Kingdoms.Remove(kingdom);
-            foreach (var world in Context.Worlds)
-                Context.Worlds.Remove(world);   
-            foreach (var user in Context.Users)
-                Context.Users.Remove(user);
-            foreach (var location in Context.Locations)
-                Context.Locations.Remove(location);
+            Context.Database.EnsureDeleted();
+            Context.Database.EnsureCreated();
             Context.SaveChanges();
         }
 
@@ -125,10 +126,10 @@ namespace TribesTest
                 kingdomsDTO[i] = kingdomDTO;
             }
 
-            Assert.Equal(kingdomsDTO.Count(), Service.GetKingdoms().Count());
-            Assert.Equal(kingdomsDTO[0].Name, Service.GetKingdoms()[0].Name);
-            Assert.Equal(kingdomsDTO[1].Owner, Service.GetKingdoms()[1].Owner);
-            Assert.Equal(kingdomsDTO[2].World, Service.GetKingdoms()[2].World);
+            Assert.Equal(kingdomsDTO.Count(), Service.GetKingdoms(0,0).Count());
+            Assert.Equal(kingdomsDTO[0].Name, Service.GetKingdoms(0,0)[0].Name);
+            Assert.Equal(kingdomsDTO[1].Owner, Service.GetKingdoms(0,0)[1].Owner);
+            Assert.Equal(kingdomsDTO[2].World, Service.GetKingdoms(0,0)[2].World);
         }
 
         [Fact]
@@ -165,5 +166,23 @@ namespace TribesTest
             Assert.Equal(Service.GetKindom(Context.Kingdoms.First().Id).Id, kingdomDTO.Id); 
         }
 
+        [Fact]
+        public void GetAllKingdomsTest()
+        {
+            var kingdoms = new List<Kingdom>()
+            {
+                new Kingdom() { Name = "2", Buildings = new List<Building>(), Resources = new List<Resource>(), Armies = new List<Army>() },
+                new Kingdom() { Name = "1", Buildings = new List<Building>(), Resources = new List<Resource>(), Armies = new List<Army>() },
+                new Kingdom() { Name = "0", Buildings = new List<Building>(), Resources = new List<Resource>(), Armies = new List<Army>() },
+            };
+            Context.Kingdoms.AddRange(kingdoms);
+            Context.SaveChanges();
+            var actual = Context.Kingdoms.ToList();
+            Assert.True(actual.Count() == 3);
+            for (int i = 0; i < 3; i++)
+            {
+                Assert.Equal(actual[i].Name, i.ToString());
+            }
+        }
     }
 }

@@ -1,12 +1,4 @@
-﻿using Eucyon_Tribes.Context;
-using Eucyon_Tribes.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Tribes.Tests.SeedData
+﻿namespace Tribes.Tests.SeedData
 {
     public class UserSeedData
     {
@@ -14,8 +6,8 @@ namespace Tribes.Tests.SeedData
         public static void PopulateTestData(ApplicationContext _db, string dbFillCode)
         {
 
-            _db.Database.EnsureDeleted();
-            _db.Database.EnsureCreated();
+            //_db.Database.EnsureDeleted();
+            //_db.Database.EnsureCreated();
 
             var user1 = new User()
             {
@@ -35,13 +27,15 @@ namespace Tribes.Tests.SeedData
                 VerificationToken = String.Empty,
                 ForgottenPasswordToken = String.Empty
             };
+            user1.Role = "Player";
+            user2.Role = "Player";
 
             try
             {
                 int worlds = Int32.Parse(dbFillCode.Substring(dbFillCode.Length - 1));
                 if (worlds > 0)
                     for (int i = 0; i < worlds; i++)
-                        _db.Worlds.Add(new World());
+                        _db.Worlds.Add(new World() { Name = $"world{i}"});
               
             }
             catch (FormatException)

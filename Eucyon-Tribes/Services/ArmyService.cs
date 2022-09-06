@@ -1,11 +1,9 @@
-﻿using Eucyon_Tribes.Config;
-using Eucyon_Tribes.Context;
+﻿using Eucyon_Tribes.Context;
 using Eucyon_Tribes.Factories;
 using Eucyon_Tribes.Models;
 using Eucyon_Tribes.Models.DTOs.ArmyDTOs;
 using Eucyon_Tribes.Models.Resources;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Eucyon_Tribes.Services
 {
@@ -14,15 +12,12 @@ namespace Eucyon_Tribes.Services
         private readonly IArmyFactory _armyFactory;
         private readonly ApplicationContext _db;
         public String ErrorMessage { get; private set; }
-        private readonly IConfiguration _config;
         public int ArmySizeLimit { get; }
 
-        public ArmyService(IArmyFactory armyFactory, ApplicationContext db, IConfiguration configuration)
+        public ArmyService(IArmyFactory armyFactory, ApplicationContext db)
         {
             this._db = db;
-            this._armyFactory = armyFactory;
-            this._config = configuration;
-            ArmySizeLimit = int.Parse(_config["ARMY_SIZE_LIMIT"]);
+            _armyFactory = armyFactory;
         }
 
         //kingdom id later to be replaced by some sort of user verification
@@ -33,157 +28,148 @@ namespace Eucyon_Tribes.Services
             ArmyDTO[] armyDTOs = new ArmyDTO[armies.Count()];
             for (int i = 0; i < armies.Count; i++)
             {
-                List<SoldierDTO> soldiers = new List<SoldierDTO>();
-                for (int j = 0; j < armies[i].Soldiers.Count; j++)
-                {
-                    SoldierDTO soldierDTO = new SoldierDTO(armies[i].Soldiers[j].Id, armies[i].Soldiers[j].TotalHP, armies[i].Soldiers[j].CurrentHP);
-                    soldiers.Add(soldierDTO);
-                }
-                ArmyDTO armyDTO = new ArmyDTO(armies[i].Id, kingdom.Id, armies[i].Type, soldiers);
-                armyDTOs[i] = armyDTO;
+                armyDTOs[i] = GetArmy(armies[i].Id);
             }
             return armyDTOs;
         }
 
         public ArmyDTO GetArmy(int armyId)
         {
-            if (armyId < 0)
+            //needs to varify token as well
+            if (armyId < 1)
             {
                 ErrorMessage = "Invalid id";
                 return null;
-            }
-            Army army = _db.Armies.Include(a=>a.Soldiers).FirstOrDefault(k => k.Id == armyId);
-            if (army == null)
-            {
-                ErrorMessage = "Army not found";
-                return null;
-            }
-            List<SoldierDTO> soldiers = new List<SoldierDTO>();
-            for (int j = 0; j < army.Soldiers.Count; j++)
-            {
-                SoldierDTO soldierDTO = new SoldierDTO(army.Soldiers[j].Id, army.Soldiers[j].TotalHP, army.Soldiers[j].CurrentHP);
-                soldiers.Add(soldierDTO);
-            }
-            ArmyDTO armyDTO = new ArmyDTO(army.Id, armyId, army.Type, soldiers);
-            return armyDTO;
-        }
-
-        //kingdom id later to be replaced by some sort of user verification
-        public Boolean CreateArmy(CreateArmyDTO createArmyDTO, int kingdomId)
-        {
-            if (createArmyDTO.Units.Count() != createArmyDTO.Units.Distinct().Count())
-            {
-                ErrorMessage = "Request contains duplicate soldiers";
-                return false;
-            }
-            Kingdom kingdom = _db.Kingdoms.Include(k => k.Resources).Include(k=>k.Armies).Where(k => k.Id == kingdomId).First();
-            List<Soldier> soldiers = kingdom.Resources.Where(r => r.GetType() == typeof(Soldier)).Select(s => (Soldier)s).ToList();
-            if (createArmyDTO.Units.Any(u => soldiers.All(s => s.Id != u)))
-            {
-                ErrorMessage = "Unit does not belong to this kingdom";
-                return false;
-            }
-            if (createArmyDTO.Units.Count > ArmySizeLimit)
-            {
-                ErrorMessage = "Maximum number of units reached";
-                return false;
-            }
-            List<Soldier> soldiersToAdd = new List<Soldier>();
-            foreach (int soldier in createArmyDTO.Units)
-            {
-                soldiersToAdd.Add(soldiers.Where(s => s.Id == soldier).First());
-            }
-            Army army = _armyFactory.CrateArmy(soldiersToAdd, kingdom);
-            kingdom.Armies.Add(army);
-            _db.Armies.Add(army);
-            _db.SaveChanges();
-            return true;
-        }
-
-        public Boolean UpdateArmy(int armyId, UpdateArmyDTO update)
-        {
-            Army army = _db.Armies.Include(a => a.Kingdom).ThenInclude(k=>k.Resources).Include(a => a.Soldiers).FirstOrDefault(a => a.Id == armyId);
-            if (update.Add.Count() != update.Add.Distinct().Count() || update.Remove.Count() != update.Remove.Distinct().Count()) 
-            {
-                ErrorMessage = "Request contains duplicate soldiers";
-                return false;
-            }
-            List<Soldier> soldiers = army.Kingdom.Resources.Where(r => r.GetType() == typeof(Soldier)).Select(s => (Soldier)s).ToList();            
-            if (update.Add.Any(u => soldiers.All(s => s.Id != u))
-                || update.Remove.Any((u => soldiers.All(s => s.Id != u))))
-            {
-                ErrorMessage = "Unit does not belong to this kingdom";
-                return false;
-            }
-            if (update.Remove.Any((u => army.Soldiers.All(s => s.Id != u))))
-            {
-                ErrorMessage = "Unit does not belong to this army";
-                return false;
-            }
-            List<Soldier> newArmy = new List<Soldier>();
-            newArmy.AddRange(army.Soldiers);
-            foreach (int soldierId in update.Add)
-            {
-                Soldier soldier = soldiers.FirstOrDefault(s => s.Id == soldierId);
-                if (!newArmy.Contains(soldier))
-                    newArmy.Add(soldier);
-            }
-            foreach (int soldierId in update.Remove)
-            {
-                Soldier soldier= soldiers.FirstOrDefault(s => s.Id == soldierId);
-                if (newArmy.Contains(soldier))
-                    newArmy.Remove(soldier);
-            }
-            if (newArmy.Count > ArmySizeLimit)
-            {
-                ErrorMessage = "Maximum number of units reached";
-                return false;
-            }
-            else 
-            {
-                army.Soldiers = newArmy;
-            }
-            _db.SaveChanges();
-            return true;
-        }
-
-        public Boolean RemoveArmy(int armyId)
-        {
-            if (armyId < 0)
-            {
-                ErrorMessage = "Invalid id";
-                return false;
             }
             Army army = _db.Armies.Include(a => a.Soldiers).FirstOrDefault(k => k.Id == armyId);
             if (army == null)
             {
                 ErrorMessage = "Army not found";
-                return false;
+                return null;
             }
-            /* if (validationLogic false) 
-             {
-                 ErrorMessage = "Unauthorized";
-                 return false;
-             }*/
-            if (_db.Armies.FirstOrDefault(a => a.Id == armyId).Type == "Defense")
+            if (army.Soldiers.Count() == 0)
             {
-                ErrorMessage = "Cannot delete the kingdom's defense army";
-                return false;
+                return new ArmyDTO(army.Id, army.KingdomId, new List<int>());
             }
-            foreach (Soldier soldier in army.Soldiers)
+            else
             {
-                soldier.Army = null;
+                int[] numberOfUnitsByLevel = new int[army.Soldiers.GroupBy(s => s.Level).Select(g => g.Key).Max()];
+                foreach (Soldier soldier in army.Soldiers)
+                {
+                    numberOfUnitsByLevel[soldier.Level - 1]++;
+                }
+                return new ArmyDTO(army.Id, army.KingdomId, numberOfUnitsByLevel.ToList());
             }
-            _db.Armies.Remove(army);
+        }
+
+        public Boolean RemoveArmy()
+        {
+            List<Army> armies = _db.Armies.Include(a => a.Soldiers).Where(k => k.DisbandsAt <= DateTime.Now).ToList();
+            foreach (Army army in armies)
+            {
+                foreach (Soldier soldier in army.Soldiers)
+                {
+                    soldier.Army = null;
+                }
+                _db.Armies.Remove(army);
+            }
             _db.SaveChanges();
             return true;
         }
 
-        public String GetError() 
+        public String GetError()
         {
             String output = this.ErrorMessage;
             this.ErrorMessage = null;
             return output;
+        }
+        //id to be replaced with token in header
+        public AvailableUnitsDTO GetAvailableUnits(int id)
+        {
+            Kingdom kingdom = _db.Kingdoms.Include(k => k.Resources).FirstOrDefault(k => k.Id == id);
+            List<Resource> resources = kingdom.Resources.Where(r => r.GetType() == typeof(Soldier)).ToList();
+            List<Soldier> soldiers = new List<Soldier>();
+            foreach (Resource resource in resources)
+            {
+                soldiers.Add((Soldier)resource);
+            }
+            int[] output = new int[soldiers.GroupBy(s => s.Level).Select(g => g.Key).Count()];
+            foreach (Soldier soldier in soldiers)
+            {
+                if (soldier.Army == null && soldier.FinishedAt < DateTime.Now)
+                    output[soldier.Level - 1]++;
+            }
+            return new AvailableUnitsDTO(output.ToList());
+        }
+        public Army CreateArmy(List<int> numberOfUnitsByLevel, int kingdomId, int distance)
+        {
+            Kingdom kingdom = _db.Kingdoms.Include(k => k.Resources).FirstOrDefault(k => k.Id == kingdomId);
+            List<Resource> resources = kingdom.Resources.Where(r => r.GetType() == typeof(Soldier)).ToList();
+            List<Soldier> soldiers = new List<Soldier>();
+            foreach (Resource resource in resources)
+            {
+                soldiers.Add((Soldier)resource);
+            }
+            int[] availableUnits = new int[soldiers.GroupBy(s => s.Level).Select(g => g.Key).Count()];
+            foreach (Soldier soldier in soldiers)
+            {
+                if (soldier.Army == null)
+                    availableUnits[soldier.Level - 1]++;
+            }
+            if (numberOfUnitsByLevel.Count() > availableUnits.Length)
+            {
+                ErrorMessage = "You do not posses any units of requested level";
+                return null;
+            }
+            for (int i = 0; i < numberOfUnitsByLevel.Count; i++)
+            {
+                if (numberOfUnitsByLevel[i] > availableUnits[i])
+                {
+                    ErrorMessage = "Not enugh units of level " + (i + 1);
+                    return null;
+                }
+            }
+            List<Soldier> soldiersToAdd = new List<Soldier>();
+            for (int i = 0; i < numberOfUnitsByLevel.Count; i++)
+            {
+                soldiersToAdd.AddRange(soldiers.Where(s => s.Level == i + 1).ToList().GetRange(0, numberOfUnitsByLevel[i]));
+            }
+            Army army = _armyFactory.CrateArmy(soldiersToAdd, kingdom, distance);
+            return army;
+        }
+
+        public UnitsUnderConstructionDTO[] UnitsUnderConstruction(int id)
+        {
+            Kingdom kingdom = _db.Kingdoms.Include(k => k.Resources).FirstOrDefault(k => k.Id == id);
+            List<Soldier> soldiers = new List<Soldier>();
+            foreach (Resource resource in kingdom.Resources)
+            {
+                if (resource.GetType() == typeof(Soldier))
+                    soldiers.Add((Soldier)resource);
+            }
+            soldiers.RemoveAll(s => s.FinishedAt < DateTime.Now);
+            List<DateTime> dateTimes = soldiers.Select(s => s.FinishedAt).Distinct().ToList();
+            UnitsUnderConstructionDTO[] unitsUnderConstructions = new UnitsUnderConstructionDTO[dateTimes.Count()];
+            for (int i = 0; i < dateTimes.Count; i++)
+            {
+                List<int> soldiersByLevel = new List<int>();
+                foreach (Soldier soldier in soldiers)
+                {
+                    if (soldier.FinishedAt == dateTimes[i])
+                    {
+                        if (soldiersByLevel.Count()<soldier.Level)
+                        {
+                            for (int j=0; j < soldier.Level+1; j++)
+                            {
+                                soldiersByLevel.Add(0);
+                            }
+                        }
+                        soldiersByLevel[soldier.Level - 1]++;
+                    }
+                }
+                unitsUnderConstructions[i] = new UnitsUnderConstructionDTO(soldiersByLevel, dateTimes[i]);
+            }
+            return unitsUnderConstructions;
         }
     }
 }

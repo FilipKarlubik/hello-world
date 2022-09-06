@@ -39,7 +39,7 @@ namespace Tribes.Tests.ResourceTests
             List<Building> buildings = new() { sawMill, mine, townHall, farm };
             List<Resource> resources = new() { wood, gold, food, people, soldier };
             var kingdom = new Kingdom() { Name = "Aden", Buildings = buildings, Resources = resources };
-            
+
             _db.Kingdoms.Add(kingdom);
             _db.SaveChanges();
         }
@@ -74,11 +74,146 @@ namespace Tribes.Tests.ResourceTests
             var kingdom = _db.Kingdoms.Include(k => k.Resources).First();
             foreach (var resource in kingdom.Resources)
             {
-                if (resource is not Soldier)
+                if (resource is Food)
+                {
+                    Assert.Equal(18, resource.Amount);
+                }
+                else if (resource is not Soldier)
                 {
                     Assert.Equal(20, resource.Amount);
                 }
             }
+        }
+        [Fact]
+        public void UpdateResourceKingdomTest()
+        {
+            Service.UpdateResourceKingdom(1);
+            var kingdom = _db.Kingdoms.Include(k => k.Resources).First();
+            foreach (var resource in kingdom.Resources)
+            {
+                if (resource is Food) 
+                {
+                    Assert.Equal(18, resource.Amount);
+                }
+                else if (resource is not Soldier)
+                {
+                    Assert.Equal(20, resource.Amount);
+                }
+            }
+        }
+
+        [Fact]
+        public void ResourceService_FamineCheck_Famine()
+        {
+            World world = new World
+            {
+                Name = "world",
+                Kingdoms = new List<Kingdom>(),
+                Locations = new List<Location>()
+            };
+            User user = new User
+            {
+                Name = "user",
+                Email = "email",
+                PasswordHash = "password",
+                ForgottenPasswordToken = "token",
+                VerificationToken = "token"
+            };
+            user.Role = "Player";
+            Location location = new Location
+            {
+                World = world,
+                XCoordinate = 0,
+                YCoordinate = 0
+            };
+            Kingdom kingdom = new Kingdom
+            {
+                Name = "kingdom",
+                World = world,
+                Location = location,
+                Armies = new List<Army>(),
+                Buildings = new List<Building>(),
+                Resources = new List<Resource>(),
+                User = user,
+                AttackBattles = new List<Battle>()
+            };
+            Soldier soldier = new Soldier();
+            Food food = new Food
+            {
+                UpdatedAt = DateTime.Now,
+                Amount = -1
+            };
+            kingdom.Resources.Add(food);
+            kingdom.Resources.Add(soldier);
+            _db.Worlds.Add(world);
+            _db.Users.Add(user);
+            _db.Locations.Add(location);
+            _db.Kingdoms.Add(kingdom);
+            _db.Resources.Add(food);
+            _db.Resources.Add(soldier);
+            _db.SaveChanges();
+
+            Service.FamineCheck();
+
+            Assert.Equal(49,food.Amount);
+            Assert.Null(_db.Resources.FirstOrDefault(r => r.Kingdom == kingdom && r is Soldier));
+        }
+
+        [Fact]
+        public void ResourceService_FamineCheck_Ok()
+        {
+            World world = new World
+            {
+                Name = "world",
+                Kingdoms = new List<Kingdom>(),
+                Locations = new List<Location>()
+            };
+            User user = new User
+            {
+                Name = "user",
+                Email = "email",
+                PasswordHash = "password",
+                ForgottenPasswordToken = "token",
+                VerificationToken = "token"
+            };
+            user.Role = "Player";
+            Location location = new Location
+            {
+                World = world,
+                XCoordinate = 0,
+                YCoordinate = 0
+            };
+            Kingdom kingdom = new Kingdom
+            {
+                Name = "kingdom",
+                World = world,
+                Location = location,
+                Armies = new List<Army>(),
+                Buildings = new List<Building>(),
+                Resources = new List<Resource>(),
+                User = user,
+                AttackBattles = new List<Battle>()
+            };
+            Soldier soldier = new Soldier();
+            Food food = new Food
+            {
+                UpdatedAt = DateTime.Now,
+                Amount = 1
+            };
+            kingdom.Resources.Add(food);
+            kingdom.Resources.Add(soldier);
+            _db.Worlds.Add(world);
+            _db.Users.Add(user);
+            _db.Locations.Add(location);
+            _db.Kingdoms.Add(kingdom);
+            _db.Resources.Add(food);
+            _db.Resources.Add(soldier);
+            _db.SaveChanges();
+
+            Service.FamineCheck();
+
+            Assert.Equal(1, food.Amount);
+            Assert.NotNull(_db.Resources.FirstOrDefault(r => r.Kingdom == kingdom && r is Soldier));
         }
     }
 }

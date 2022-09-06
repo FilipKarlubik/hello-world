@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Delete User Page</title>
+    <style>
+        .tit 
+         {
+            border: dotted black;
+            padding: 5px;
+            background-color: darkgrey;
+            text-decoration: none;
+            color: black;
+         }
+    </style>
+</head>
+<body>
+    <a class="tit" href="/admin/user/create">Create new User</a>
+    <a class="tit" href="/admin/user/login">Login User</a>
+    <h3>Delete User</h3>
+    <form method="post" action="/admin/user/delete">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+        <input type="submit" value="Delete">
+        <a href="/admin/user/list">Cancel</a>
+    </form>
+</body>
+</html>

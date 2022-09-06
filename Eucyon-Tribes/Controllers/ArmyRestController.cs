@@ -1,6 +1,7 @@
 ﻿using Eucyon_Tribes.Models.DTOs;
 using Eucyon_Tribes.Models.DTOs.ArmyDTOs;
 using Eucyon_Tribes.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace Eucyon_Tribes.Controllers
 {
     [Route("api/armies")]
     [ApiController]
+    [Authorize(Roles = "Player, Admin")]
     public class ArmyRestController : ControllerBase
     {
         private readonly IArmyService _armyService;
@@ -50,79 +52,20 @@ namespace Eucyon_Tribes.Controllers
             return Ok(armies);
         }
 
-        [HttpPost("{id}")]
-        public IActionResult Store(CreateArmyDTO createArmyDTO,int id) 
+        [HttpGet("kingdom/availableunits/{id}")]
+        public IActionResult AvailableUnits(int id)
         {
-            //id in url later to be replaced by user verification
-            if (_armyService.CreateArmy(createArmyDTO, id))
-            {
-                return Ok(new ResponseDTO("ok"));
-            }
-            else 
-            {
-                ErrorDTO error = new ErrorDTO(_armyService.GetError());
-                JsonResult result = new JsonResult(error);
-                if (error.Error == "Unit does not belong to this kingdom" || error.Error == "Request contains duplicate soldiers")
-                {
-                    result.StatusCode = 403;
-                }
-                else
-                {
-                    result.StatusCode = 400;
-                }
-                return result;
-            }
+            //id in param to be replacet by token auth
+            AvailableUnitsDTO availableUnits = _armyService.GetAvailableUnits(id);
+            return Ok(availableUnits);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(UpdateArmyDTO updateArmyDTO, int id)
+        [HttpGet("kingdom/unitsunderconstruction/{id}")]
+        public IActionResult UnitsUnderConstruction(int id)
         {
-            if (_armyService.UpdateArmy(id,updateArmyDTO))
-            {
-                return Ok(new ResponseDTO("ok"));
-            }
-            else
-            {
-                ErrorDTO error = new ErrorDTO(_armyService.GetError());
-                JsonResult result = new JsonResult(error);
-                if (error.Error == "Unit does not belong to this kingdom" || error.Error == "Unit does not belong to this army" || 
-                    error.Error == "Request contains duplicate soldiers")
-                {
-                    result.StatusCode = 403;
-                }
-                else
-                {
-                    result.StatusCode = 400;
-                }
-                return result;
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            if (_armyService.RemoveArmy(id))
-            {
-                return Ok(new ResponseDTO("deleted"));
-            }
-            else
-            {
-                ErrorDTO error = new ErrorDTO(_armyService.GetError());
-                JsonResult result = new JsonResult(error);
-                if (error.Error == "Army not found")
-                {
-                    result.StatusCode = 404;
-                }
-                if (error.Error == "Unauthorized")
-                {
-                    result.StatusCode = 403;
-                }
-                if(error.Error == "Cannot delete the kingdom's defense army" || error.Error == "Invalid id")
-                {
-                    result.StatusCode = 400;
-                }
-                return result;
-            }
+            //id in param to be replacet by token auth
+            UnitsUnderConstructionDTO[] unitsUnderConstruction = _armyService.UnitsUnderConstruction(id);
+            return Ok(unitsUnderConstruction);
         }
     }
 }

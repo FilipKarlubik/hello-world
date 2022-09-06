@@ -11,5 +11,6 @@ namespace Eucyon_Tribes.Models
 
         public int KingdomId { get; set; }
         public Kingdom Kingdom { get; set; } = null!;
+
     }
 }

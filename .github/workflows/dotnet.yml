@@ -2,10 +2,10 @@ name: Build & Test
 
 on:
    push:
-    branches: [ "master" ]
+    branches: [ "development" ]
    pull_request:
-    branches: [ "master" ]
-    
+    branches: [ "development" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,8 +21,12 @@ jobs:
       run: dotnet build --no-restore ./Eucyon-Tribes/Eucyon-Tribes.sln
     - name: Test
       env:
-         TOKENGENERATIONKEY: ${{ secrets.TOKENGENERATIONKEY }}
-         TRIBES_GAMETICK_LEN: ${{ secrets.TRIBES_GAMETICK_LEN }}
-         ARMY_SIZE_LIMIT: ${{ secrets.ARMY_SIZE_LIMIT }}
-         MailServicePassword:  ${{ secrets.MAILSERVICEPASSWORD }}
-      run: dotnet test --no-build --verbosity normal ./Eucyon-Tribes/Eucyon-Tribes.sln
+         TokenGenerationKey: ${{ secrets.TokenGenerationKey }}
+         TribesGametickLength: ${{ secrets.TribesGametickLength }}
+         MailServicePassword: ${{ secrets.MailServicePassword }}
+         TwoStepSecret: ${{ secrets.TwoStepSecret }}
+         DistanceMultiplier: ${{ secrets.DistanceMultiplier }}
+         AzureUser: ${{ secrets.azureuser }}
+         AzureSqlPassword: ${{ secrets.AZURESQLPASSWORD }}
+      run: dotnet test --no-build --verbosity minimal ./Eucyon-Tribes/
+      

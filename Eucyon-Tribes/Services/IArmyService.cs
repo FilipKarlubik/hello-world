@@ -1,4 +1,5 @@
-﻿using Eucyon_Tribes.Models.DTOs.ArmyDTOs;
+﻿using Eucyon_Tribes.Models;
+using Eucyon_Tribes.Models.DTOs.ArmyDTOs;
 
 namespace Eucyon_Tribes.Services
 {
@@ -8,12 +9,14 @@ namespace Eucyon_Tribes.Services
 
         public ArmyDTO GetArmy(int armyId);
 
-        public Boolean CreateArmy(CreateArmyDTO createArmyDTO, int kingdomId);
-
-        public Boolean UpdateArmy(int armyId, UpdateArmyDTO update);
-
-        public Boolean RemoveArmy(int armyId);
+        public Boolean RemoveArmy();
 
         public String GetError();
+
+        public AvailableUnitsDTO GetAvailableUnits(int id);
+
+        public Army CreateArmy(List<int> numberOfUnitsByLevel, int kingdomId, int distance);
+
+        public UnitsUnderConstructionDTO[] UnitsUnderConstruction(int id);
     }
 }

@@ -1,13 +1,15 @@
 ﻿using Eucyon_Tribes.Models;
+using Eucyon_Tribes.Models.DTOs;
 using Eucyon_Tribes.Models.UserModels;
+using System.Security.Claims;
 
 namespace Eucyon_Tribes.Services
 {
     public interface IUserService
     {
         string Login(UserLoginDto login);
-        List<UserResponseDto> ListAllUsers();
-        string CreateUser(UserCreateDto user, string kingdomName, int worldId);
+        Dictionary<int, string> CreateUser(UserCreateDto user, string kingdomName, int worldId);
+        List<UserResponseDto> ListAllUsers(int page, int itemCount);
         string DeleteUser(string name, string password);
         User UserInfo(string name);
         List<UserDetailDto> UsersInfoDetailedForAdmin(string adminPass);
@@ -15,6 +17,12 @@ namespace Eucyon_Tribes.Services
         bool DestroyUser(int id, string password);
         bool EditUser(int id, string name, string password);
         bool UpdateUser(int id, UserCreateDto user);
-        int StoreUsers(UsersInputDto users);      
+        int StoreUsers(UsersInputDto users);
+        string VerifyUserWithEmail(string token);
+        string NewTokenGeneration(UserLoginDto login);
+        string NewPasswordRequest(EmailForPasswordResetDto emailForPasswordResetDto);
+        bool TokenCheckExpired(ClaimsIdentity? userIdentity);
+        string NewPasswordVerification(string token);
+        string NewPasswordGeneration(string token, NewPasswordDTO newPasswordDTO);
     }
 }

@@ -12,15 +12,17 @@
         public int YCoordinate { get; }
         public DateTime CreatedDate { get; }
         public DateTime VerifiedAt { get; }
+        public DateTime TokenExpiresAt { get; }
         public int WorldID { get; }
         public string KingdomName { get; }
-        public string VerificationToken { get; set; } = null!;
-        public string ForgottenPasswordToken { get; set; } = null!;
+        public string VerificationToken { get; } 
+        public string ForgottenPasswordToken { get; } 
+        public string Role { get; }
 
         public UserDetailDto(int iD, string name, string email, string passwordHash,
             int kingdomID, int locationID, int xCoordinate, int yCoordinate,
-            DateTime createdDate, DateTime verifiedAt, int worldID, string kingdomName
-            , string verificationToken, string forgottenPasswordToken)
+            DateTime createdDate, DateTime verifiedAt, DateTime tokenExpiresAt, int worldID, string kingdomName
+            , string verificationToken, string forgottenPasswordToken, string role)
         {
             ID = iD;
             Name = name;
@@ -35,7 +37,9 @@
             WorldID = worldID;
             KingdomName = kingdomName;
             VerificationToken = verificationToken;
-            ForgottenPasswordToken = forgottenPasswordToken;    
+            ForgottenPasswordToken = forgottenPasswordToken;
+            Role = role;
+            TokenExpiresAt = tokenExpiresAt;
         }
     }
 }

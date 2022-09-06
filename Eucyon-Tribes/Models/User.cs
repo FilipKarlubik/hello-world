@@ -1,4 +1,7 @@
-﻿namespace Eucyon_Tribes.Models
+﻿using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+
+namespace Eucyon_Tribes.Models
 {
     public class User
     {
@@ -12,13 +15,22 @@
         public string Email { get; set; } = null!;
         public string ForgottenPasswordToken { get; set; } = null!;
         public DateTime ForgottenPasswordTokenExpiresAt { get; set; }
+        public DateTime ForgottenPasswordTokenVerifiedAt { get; set; }
+        public string Role { get; set; } = null!;
 
         public Kingdom Kingdom { get; set; } = null!;
 
         public User()
         {
-            VerificationTokenExpiresAt = DateTime.Now.AddDays(5);
+            VerifiedAt = DateTime.MinValue;
+            ForgottenPasswordTokenVerifiedAt = DateTime.MinValue;
+            VerificationTokenExpiresAt = DateTime.Now.AddHours(1);            
             CreatedDate = DateTime.Now;
+        }
+
+        public void setVerificationExpiration(int hours)
+        {
+            this.VerificationTokenExpiresAt = DateTime.Now.AddHours(hours);
         }
     }
 }

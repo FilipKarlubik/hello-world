@@ -1,8 +1,7 @@
 ﻿using Eucyon_Tribes.Factories;
 using Eucyon_Tribes.Models.DTOs.KingdomDTOs;
-using Eucyon_Tribes.Models.UserModels;
-using Eucyon_Tribes.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Tribes.Tests.UserTests
 {
@@ -19,18 +18,28 @@ namespace Tribes.Tests.UserTests
         public KingdomFactory kingdomFactory;
         public BuildingFactory buildingFactory;
         public ResourceFactory resourceFactory;
-        public ArmyFactory armyFactory;
+        public IAuthService authService;
+        public ConfigRuleService configRuleService;
+        public EmailService emailService;
+        public IConfiguration config;
 
         public KingdomServiceCreateKingdomTests()
         {
-
             db = new ApplicationContext(options);
+            config = new ConfigurationBuilder().AddJsonFile("appsettings.json")
+                .AddUserSecrets<Program>().Build();
+            foreach (var child in config.GetChildren())
+            {
+                Environment.SetEnvironmentVariable(child.Key, child.Value);
+            }
+            configRuleService = new ConfigRuleService(db, config);
             resourceFactory = new ResourceFactory();
             buildingFactory = new BuildingFactory();
-            armyFactory = new ArmyFactory();
-            kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory);
-            kingdomService = new KingdomService(db, kingdomFactory,armyFactory);
-            userService = new UserService(db, kingdomService);
+            emailService = new EmailService(config);
+            kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory, configRuleService);         
+            authService = new JWTService(config);
+            kingdomService = new KingdomService(db, kingdomFactory);
+            userService = new UserService(db, kingdomService, authService, emailService);
 
             var user1 = new User()
             {
@@ -48,8 +57,9 @@ namespace Tribes.Tests.UserTests
                 VerificationToken = "",
                 ForgottenPasswordToken = ""
             };
-
-            db.Worlds.Add(new World());
+            user1.Role = "Player";
+            user2.Role = "Player";
+            db.Worlds.Add(new World() { Name = "world"});
             db.Users.Add(user1);
             db.Users.Add(user2);
             db.SaveChanges();

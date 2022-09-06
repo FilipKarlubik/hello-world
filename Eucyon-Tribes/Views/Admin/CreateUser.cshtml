@@ -1,0 +1,46 @@
+﻿@using Eucyon_Tribes.Models
+@model IEnumerable<World>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Create User Page</title>
+    <style>
+        .tit 
+         {
+            border: dotted black;
+            padding: 5px;
+            background-color: darkgrey;
+            text-decoration: none;
+            color: black;
+         }
+    </style>
+</head>
+<body>
+    <a class=tit href="/admin/user/login">Login User</a>
+    <a class=tit href="/admin/user/delete">Delete User</a>
+    <h3>Create User</h3>
+    <form method="post" action="/admin/user/create">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required><br />
+        <label for="password">Password</label>
+        <input type="text" id="password" name="password" required><br />
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required><br />
+        <label for="kingdom">Kingdom Name - blank if none</label>
+        <input type="text" id="kingdom" name="kingdomName"><br />
+        <label for="world">World ID</label>
+        <select id="world" name="worldId" required>
+            <option value="0">Random</option>
+            @foreach(World world in Model)
+            {
+            <option value="@world.Id">@world.Id</option>
+            }
+        </select>
+        <div>
+            <input type="submit" value="Create">
+             <a href="/admin/user/list">Cancel</a>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,171 @@
+﻿@using Eucyon_Tribes.Models.Resources
+@model Eucyon_Tribes.Models.Kingdom
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Kingdom Detail Page</title>
+    <style>
+        .circular_image 
+        {
+          float: left;
+          margin-right: 25px;
+          margin-top: 20px;
+          height: 250px;
+          border : 5px;
+          overflow: hidden;
+          border-radius:50%;
+          width:auto;
+          border: solid blue;
+         }
+        .tit 
+         {
+            border: dotted black;
+            padding: 5px;
+            background-color: darkgrey;
+            text-decoration: none;
+            color: black;
+         }
+         table, th, td  
+         { 
+            border: 1px solid black;
+            border-collapse: collapse;
+         }
+    </style>
+</head>
+<body>
+    <h3 style="color : red">@ViewBag.Message</h3>
+    <a class="tit" href="/admin/user/list">Back to users List</a>
+    <a class="tit" href="/admin/worlds/show/@ViewBag.WorldId">Show in world view</a>
+    <a class="tit" href="/admin/kingdomdetail/@Model.Id">Refresh</a>
+    <h3>Kingdom @Model.Name, owner @ViewBag.User</h3>
+    <p>Location X:@Model.Location.XCoordinate</p>
+    <p>Location Y:@Model.Location.YCoordinate</p>
+    <img class="circular_image" src="https://www.kingdoms.com/img/screenshots/screenshot2.jpg">
+    <a class="tit" style="color:red"  href="/admin/delete/kingdom/@Model.Id">Delete this Kingdom</a>
+    <div>
+        <h4>Buildings : @Model.Buildings.Count</h4>
+        <form method="post" action="/admin/create/building/@Model.Id">
+            <label for="world">Create new building</label>
+            <select id="world" name="buildingId" type="number" required>
+                <option value="0">TownHall</option>     
+                <option value="1">Barracks</option>
+                <option value="2">Farm</option>
+                <option value="3">Mine</option>
+                <option value="4">Sawmill</option>
+            </select>
+            <input type="submit" value="Create">
+        </form>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Level</th>
+                <th>Production</th>
+                <th>Hp</th>
+                <th>StartedAt</th>
+                <th>FinishedAt</th>
+                <th>Action</th>
+
+            </tr>
+        @foreach (var building in Model.Buildings)
+        {
+            <tr>
+                <td>@building.Id</td>
+                <td>@building.GetType().ToString().Split(".").Last()</td>
+                <td>@building.Level</td>
+                <td>@building.Production</td>
+                <td>@building.Hp</td>
+                <td>@building.StartedAt</td>
+                <td>@building.FinishedAt</td>
+                <td><a style="color:red" href="/admin/delete/building/@building.Id">delete</a></td>
+            </tr>
+        }
+        </table>
+    </div>
+    <div>
+        <h4>Resources</h4>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>UpdatedAt</th>
+                <th>Action</th>
+                <th>Change To</th>
+            </tr>
+        @foreach (var resource in Model.Resources)
+        @if (!resource.GetType().ToString().Equals("Eucyon_Tribes.Models.Resources.Soldier"))
+        {
+            <tr>
+                <td>@resource.Id</td>
+                <td>@resource.GetType().ToString().Split(".").Last()</td>
+                <td style="color:blue">@resource.Amount</td>
+                <td>@resource.UpdatedAt</td> 
+                <td><a style="color:red" href="/admin/delete/resource/@resource.Id">delete</a></td>
+                <td>
+                    <form method="post" action="/admin/set/resource/@resource.Id/@Model.Id">
+                        <label for="res"></label>
+                        <input id="res" type="number" min="0" name="amount" value="@resource.Amount">
+                        <input type="submit" value="Set">
+                    </form>
+                </td>
+            </tr>
+        }
+        </table>
+    </div>
+    <div>
+        <h4>Armies : @Model.Armies.Count()</h4>   
+        <a href="/admin/army/add/@Model.Id">Add</a>
+        <table>
+            <tr>
+                <th>Action</th>
+                <th>Id</th>              
+                <th>Defense</th>
+                <th>Attack</th>
+                <th>HP</th>
+            </tr>
+        @foreach (var army in Model.Armies)
+        {
+            <tr>
+                <td><a style="color:red" href="/admin/delete/army/@army.Id">delete</a></td>
+                <td>@army.Id</td>                              
+                <td>@ViewBag.Defense</td>
+                <td>@ViewBag.Attack</td>
+                <td>@ViewBag.HP</td>            
+            </tr>
+        }
+        </table>
+    </div>
+    <div>
+        <h4>Soldiers : @Model.Resources.Where(r => r.GetType().ToString().Equals("Eucyon_Tribes.Models.Resources.Soldier")).Count()</h4>
+        <a href="/admin/soldier/add/@Model.Id">Add (to random army if multiple)</a>
+        <table>
+               <tr>
+                <th>ID</th>
+                <th>Amount</th>
+                <th>UpdatedAt</th>
+                <th>Level</th>
+                <th>Hp</th>
+                <th>Attack</th>
+                <th>Defense</th>
+                <th>ArmyID</th>
+                <th>Action</th>
+            </tr>
+        @foreach (Soldier soldier in Model.Resources.Where(r => r.GetType().ToString().Equals("Eucyon_Tribes.Models.Resources.Soldier")).ToList())
+        {
+            <tr>
+                <td>@soldier.Id</td>          
+                <td style="color:blue">@soldier.Amount</td>
+                <td>@soldier.UpdatedAt</td> 
+                <td>@soldier.Level</td> 
+                <td>@soldier.CurrentHP</td> 
+                <td>@soldier.Attack</td> 
+                <td>@soldier.Defense</td> 
+                <td>@soldier.ArmyId</td>
+                <td><a style="color:red" href="/admin/delete/soldier/@soldier.Id/@Model.Id">delete</a></td>
+            </tr>
+        }
+        </table>
+    </div>
+</body>
+</html>

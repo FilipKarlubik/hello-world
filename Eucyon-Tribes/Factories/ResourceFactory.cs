@@ -1,5 +1,4 @@
-﻿using Eucyon_Tribes.Models;
-using Eucyon_Tribes.Models.Resources;
+﻿using Eucyon_Tribes.Models.Resources;
 
 namespace Eucyon_Tribes.Factories
 {
@@ -33,6 +32,7 @@ namespace Eucyon_Tribes.Factories
                 UpdatedAt = DateTime.Now,
                 Level = 1,
                 TotalHP = 25,
+                CurrentHP = 25,
                 Attack = 10,
                 Defense = 10
             };
