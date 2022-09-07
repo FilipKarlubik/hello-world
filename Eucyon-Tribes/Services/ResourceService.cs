@@ -109,13 +109,16 @@ namespace Eucyon_Tribes.Services
                 if (kingdom.Resources.Where(r => r.GetType() == typeof(Food)).FirstOrDefault().Amount < 0) 
                 {
                     List<Soldier> soldiers = kingdom.Resources.Where(r => r.GetType() == typeof(Soldier)).Select(r=>(Soldier)r).ToList();
-                    Soldier soldier = soldiers.FirstOrDefault(s => s.Army == null);
-                    kingdom.Resources.Remove(soldier);
-                    _db.Remove(soldier);
-                    soldier = null;
-                    kingdom.Resources.FirstOrDefault(r => r.GetType() == typeof(Food)).Amount =
-                        kingdom.Resources.FirstOrDefault(r => r.GetType() == typeof(Food)).Amount + 50;
-                    _db.SaveChanges();
+                    if (soldiers.Count > 0)
+                    {
+                        Soldier soldier = soldiers.FirstOrDefault(s => s.Army == null);
+                        kingdom.Resources.Remove(soldier);
+                        _db.Remove(soldier);
+                        soldier = null;
+                        kingdom.Resources.FirstOrDefault(r => r.GetType() == typeof(Food)).Amount =
+                            kingdom.Resources.FirstOrDefault(r => r.GetType() == typeof(Food)).Amount + 50;
+                        _db.SaveChanges();
+                    }
                 }
             }
         }

@@ -11,8 +11,6 @@ namespace Tribes.Tests.SeedData
     {
         public static void PopulateDataForArmyControllerTest(ApplicationContext applicationContext) 
         {
-            applicationContext.Database.EnsureDeleted();
-            applicationContext.Database.EnsureCreated();
             User user1 = new User();
             user1.Name = "User1";
             user1.PasswordHash = "Password1";
