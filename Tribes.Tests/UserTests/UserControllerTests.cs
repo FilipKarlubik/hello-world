@@ -43,7 +43,7 @@ namespace Tribes.Tests.UserTests
                 Environment.SetEnvironmentVariable(child.Key, child.Value);
             }
             battleFactory = new BattleFactory(config);
-            authService = new JWTService(config);
+            authService = new JWTService();
             configRuleService = new ConfigRuleService(db, config);
             kingdomService = new KingdomService(db, kingdomFactory);
             userService = new UserService(db, kingdomService, authService, emailService);

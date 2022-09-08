@@ -37,7 +37,7 @@ namespace Tribes.Tests.UserTests
             buildingFactory = new BuildingFactory();
             emailService = new EmailService(config);
             kingdomFactory = new KingdomFactory(db, resourceFactory, buildingFactory, configRuleService);         
-            authService = new JWTService(config);
+            authService = new JWTService();
             kingdomService = new KingdomService(db, kingdomFactory);
             userService = new UserService(db, kingdomService, authService, emailService);
 

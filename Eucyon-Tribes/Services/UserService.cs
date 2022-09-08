@@ -116,8 +116,16 @@ namespace Eucyon_Tribes.Services
                     "Confirm registration",
                     $"<h4>Please click on the following link to validate your registration:<h4> " +
                     $"<p>https://localhost:7192/api/email/verify/{createdUser.VerificationToken}<p>");
-                _emailService.SendEmail(verificationEmail);
-
+                
+                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (env == "Development") 
+                { 
+                    createdUser.VerifiedAt = DateTime.Now;
+                }
+                else
+                {
+                    _emailService.SendEmail(verificationEmail);
+                }
                 _db.SaveChanges();
                 result.Add(100, createdUser.VerificationToken);
                 return result;

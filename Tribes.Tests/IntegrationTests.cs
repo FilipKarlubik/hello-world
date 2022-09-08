@@ -25,7 +25,7 @@ namespace TribesTest
                 }
                 Environment.SetEnvironmentVariable(child.Key, child.Value);
             } 
-            authService = new JWTService(configuration);
+            authService = new JWTService();
 
             var appFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(host =>
             {
