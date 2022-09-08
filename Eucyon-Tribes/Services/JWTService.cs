@@ -8,10 +8,21 @@ namespace Eucyon_Tribes.Services
 {
     public class JWTService : IAuthService
     {
-        private readonly IConfiguration _config;
-        public JWTService(IConfiguration config)
+        public JWTService()
         {
-            _config = config;
+        }
+
+        public int CheckJWTCookieValidityReturnsUserId(IRequestCookieCollection cookies)
+        {
+            if (cookies == null) return -1;
+            if (!cookies.ContainsKey("Authorization")) return -1;
+
+            string token = cookies["Authorization"];
+            int idFromToken = ValidateToken(token);
+
+            if (idFromToken == -1) return -1;
+
+            return idFromToken;
         }
 
         public string GenerateToken(User user, string purpose)

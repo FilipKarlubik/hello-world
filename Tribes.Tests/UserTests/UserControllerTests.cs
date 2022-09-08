@@ -43,16 +43,17 @@ namespace Tribes.Tests.UserTests
                 Environment.SetEnvironmentVariable(child.Key, child.Value);
             }
             battleFactory = new BattleFactory(config);
-            authService = new JWTService(config);
+            authService = new JWTService();
             configRuleService = new ConfigRuleService(db, config);
             kingdomService = new KingdomService(db, kingdomFactory);
+            emailService = new EmailService(config);
             userService = new UserService(db, kingdomService, authService, emailService);
             userRestController = new UserRestController(userService);
 
             var user1 = new User()
             {
                 Name = "Matilda",
-                PasswordHash = "m",
+                PasswordHash = Hash.EncryptPassword("m"),
                 Email = "matilda@gmail.com",
                 VerificationToken = "",
                 ForgottenPasswordToken = ""
@@ -61,7 +62,7 @@ namespace Tribes.Tests.UserTests
             var user2 = new User()
             {
                 Name = "Klotilda",
-                PasswordHash = "k",
+                PasswordHash = Hash.EncryptPassword("k"),
                 Email = "klotilda@gmail.com",
                 VerificationToken = "",
                 ForgottenPasswordToken = ""
@@ -160,7 +161,7 @@ namespace Tribes.Tests.UserTests
 
             // Arrange
             var id = db.Users.FirstOrDefault(u => u.Name.Equals("Matilda")).Id;
-            var pass = db.Users.FirstOrDefault(u => u.Name.Equals("Matilda")).PasswordHash;
+            var pass = Hash.DecryptPassword(db.Users.FirstOrDefault(u => u.Name.Equals("Matilda")).PasswordHash);
             // Act
             var result = (ObjectResult)userRestController.Destroy(id, pass);
 

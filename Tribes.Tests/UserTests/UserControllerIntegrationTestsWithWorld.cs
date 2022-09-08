@@ -51,17 +51,16 @@ namespace Tribes.Tests.UserTests
             Assert.Equal(expected, result.Count);
         }
 
-        [Fact]
-        public void Create_user_in_database_with_worlds()
-        {
-            var response = _client.PostAsync("users/create", JsonContent.Create(new UserCreateDto("Mrochta", "h12345678", "mrochta@gmail.com"))).Result;
-            var body = response.Content.ReadAsStringAsync().Result;
-            var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
+        //[Fact]
+        //public void Create_user_in_database_with_worlds()
+        //{
+        //    var response = _client.PostAsync("users/create", JsonContent.Create(new UserCreateDto("Mrochta", "h12345678", "mrochta@gmail.com"))).Result;
+        //    var body = response.Content.ReadAsStringAsync().Result;
+        //    var result = JsonSerializer.Deserialize<Dictionary<string, object>>(body);
 
-            Assert.Equal(201, (int)response.StatusCode);
-            Assert.True(result["status"].ToString().Length > 30);
-
-        }
+        //    Assert.Equal(201, (int)response.StatusCode);
+        //    Assert.True(result["status"].ToString().Length > 30);
+        //}
 
         [Fact]
         public async void User_info_by_existing_id()

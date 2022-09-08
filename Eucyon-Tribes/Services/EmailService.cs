@@ -26,7 +26,9 @@ namespace Eucyon_Tribes.Services
             using var smtp = new SmtpClient();
             smtp.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
             smtp.Authenticate("eucyontribes@gmail.com", Environment.GetEnvironmentVariable("MailServicePassword"));
-            //smtp.Send(email);
+            
+            smtp.Send(email);
+            
             smtp.Disconnect(true);
         }
     }

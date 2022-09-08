@@ -24,5 +24,6 @@ namespace Eucyon_Tribes.Services
         bool TokenCheckExpired(ClaimsIdentity? userIdentity);
         string NewPasswordVerification(string token);
         string NewPasswordGeneration(string token, NewPasswordDTO newPasswordDTO);
+        ResponseObject EncryptPasswords();
     }
 }

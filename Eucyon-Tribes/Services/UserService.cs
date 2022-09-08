@@ -64,7 +64,7 @@ namespace Eucyon_Tribes.Services
             {
                 try
                 {
-                    User newUser = new User() { Name = user.Name, PasswordHash = user.Password, Email = user.Email };
+                    User newUser = new User() { Name = user.Name, PasswordHash = Hash.EncryptPassword(user.Password), Email = user.Email };
                     if(user.Password.EndsWith("#admin#"))
                     {
                         newUser.Role = "Admin";
@@ -116,8 +116,16 @@ namespace Eucyon_Tribes.Services
                     "Confirm registration",
                     $"<h4>Please click on the following link to validate your registration:<h4> " +
                     $"<p>https://localhost:7192/api/email/verify/{createdUser.VerificationToken}<p>");
-                _emailService.SendEmail(verificationEmail);
-
+                
+                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (env == "Development") 
+                { 
+                    createdUser.VerifiedAt = DateTime.Now;
+                }
+                else
+                {
+                    _emailService.SendEmail(verificationEmail);
+                }
                 _db.SaveChanges();
                 result.Add(100, createdUser.VerificationToken);
                 return result;
@@ -157,7 +165,7 @@ namespace Eucyon_Tribes.Services
             if (_db.Users.Any(u => u.Name.Equals(name)))
             {
                 User user = _db.Users.FirstOrDefault(u => u.Name.Equals(name));
-                if (user.PasswordHash.Equals(password))
+                if (user.PasswordHash.Equals(Hash.EncryptPassword(password)))
                 {
                     _db.Users.Remove(user);
                     _db.SaveChanges();
@@ -185,7 +193,7 @@ namespace Eucyon_Tribes.Services
             {
                 return false;
             }
-            else if (!user.PasswordHash.Equals(password))
+            else if (!user.PasswordHash.Equals(Hash.EncryptPassword(password)))
             {
                 return false;
             }
@@ -205,7 +213,7 @@ namespace Eucyon_Tribes.Services
             {
                 return false;
             }
-            if (!user.PasswordHash.Equals(password))
+            if (!user.PasswordHash.Equals(Hash.EncryptPassword(password)))
             {
                 return false;
             }
@@ -254,7 +262,7 @@ namespace Eucyon_Tribes.Services
                     return "User " + login.Name + " has not been verified yet. Please check your email.";
                 }
 
-                if (user.PasswordHash.Equals(login.Password))
+                if (user.PasswordHash.Equals(Hash.EncryptPassword(login.Password)))
                 {
                     user.setVerificationExpiration(24);
                     user.VerificationToken = _authService.GenerateToken(user, "verify");    
@@ -507,6 +515,30 @@ namespace Eucyon_Tribes.Services
             if (user == null) return true;
             if (user.VerificationTokenExpiresAt > DateTime.Now) return false;
             else return true;
+        }
+
+        public ResponseObject EncryptPasswords()
+        {
+            int nonEncrypted = 0;
+            foreach (User user in _db.Users)
+            {
+                try
+                {
+                    user.PasswordHash = Hash.DecryptPassword(user.PasswordHash);
+                }
+                catch
+                {
+                    nonEncrypted++;
+                }
+                finally
+                {
+                    user.PasswordHash = Hash.EncryptPassword(user.PasswordHash);
+
+                }
+                _db.Users.Update(user);
+            }
+            _db.SaveChanges();
+            return new ResponseObject(200, $"{nonEncrypted} passwords were encrypted.");
         }
     }
 }

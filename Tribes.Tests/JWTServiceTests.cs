@@ -21,7 +21,7 @@ namespace Tribes.Tests
             {
                 Environment.SetEnvironmentVariable(child.Key, child.Value);
             }
-            AuthService = new JWTService(this.Config);
+            AuthService = new JWTService();
         }
 
         [Theory]

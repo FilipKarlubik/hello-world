@@ -14,9 +14,9 @@ using System.Dynamic;
 namespace Eucyon_Tribes.Controllers
 {
     [Route("admin")]
-    [Authorize(Roles ="Admin")]
     public class AdminController : Controller
     {
+        private readonly string unauthorized = "Unauthorized, you must login as administrator.";
         private readonly ApplicationContext _db;
         private readonly IKingdomService _kingdomServices;
         private readonly IUserService _userServices;
@@ -24,13 +24,14 @@ namespace Eucyon_Tribes.Controllers
         private readonly IBuildingFactory _buildingFactory;
         private readonly IResourceFactory _resourceFactory;
         private readonly IArmyService _armyService;
+        private readonly IAuthService _authService;
         private readonly Random rand;
         private static string _message = "";
 
         public AdminController(IUserService userServices, ApplicationContext db
             , IKingdomService kingdomServices, IBuildingService buildingService
             , IBuildingFactory buildingFactory, IResourceFactory resourceFactory
-            , IArmyService armyService)
+            , IArmyService armyService, IAuthService authService)
         {
             _db = db;
             _kingdomServices = kingdomServices;
@@ -40,11 +41,17 @@ namespace Eucyon_Tribes.Controllers
             _resourceFactory = resourceFactory;
             _armyService = armyService;
             rand = new Random();
+            _authService = authService;
         }
 
         [HttpGet("")]
         public IActionResult Home()
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             List<World> worldList = _db.Worlds.ToList();
             ViewBag.Message = _message;
             _message = "";
@@ -62,12 +69,23 @@ namespace Eucyon_Tribes.Controllers
         {
             UserLoginDto login = new(name, password);
             _message = _userServices.Login(login);
+            if (_message.Length > 100)
+            {
+                IResponseCookies cookies = HttpContext.Response.Cookies;
+                string Token = _message;
+                cookies.Append("Authorization", Token, new CookieOptions() { HttpOnly = true, SameSite = SameSiteMode.Strict });
+            }
             return RedirectToAction("ListAllUsers");
         }
 
         [HttpGet("user/list")]
         public IActionResult ListAllUsers(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             ViewBag.Worlds = _db.Worlds.Count();
             ViewBag.Kingdoms = _db.Kingdoms.Count();
             ViewBag.Users = _db.Users.Count();
@@ -83,6 +101,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("kingdomDetail/{id}")]
         public IActionResult KingdomDetail(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Kingdom kingdom = _db.Kingdoms.Include(p => p.Buildings).Include(p => p.Resources)
                 .Include(p => p.Location).Include(p => p.Armies).Where(p => p.Id == id).FirstOrDefault();
             ViewBag.User = _db.Users.FirstOrDefault(u => u.Id.Equals(kingdom.UserId)).Name;
@@ -125,12 +148,22 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("user/delete")]
         public IActionResult DeleteUser()
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             return View();
         }
 
         [HttpPost("user/delete")]
         public IActionResult DeleteUserInput(string name, string password)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             _message = _userServices.DeleteUser(name, password);
             return RedirectToAction("ListAllUsers");
         }
@@ -138,6 +171,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("world/create")]
         public IActionResult WorldCreate()
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             _db.Worlds.Add(new World() { Name = "World " + _db.Worlds.Count()});
             _db.SaveChanges();
             _message = "New world number " + _db.Worlds.Count() + " created";
@@ -147,6 +185,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("worlds/delete/{id}")]
         public IActionResult WorldDelete(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             World world = _db.Worlds.FirstOrDefault(w => w.Id.Equals(id));
             try
             {
@@ -164,14 +207,24 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("delete/{id}")]
         public IActionResult DeleteUserByID(int id)
         {
-            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(id));
-            _message = _userServices.DeleteUser(user.Name, user.PasswordHash);
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
+            User userX = _db.Users.FirstOrDefault(u => u.Id.Equals(id));
+            _message = _userServices.DeleteUser(userX.Name, userX.PasswordHash);
             return RedirectToAction("ListAllUsers");
         }
 
         [HttpGet("delete/resource/{id}")]
         public IActionResult DeleteResource(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Resource resource = _db.Resources.FirstOrDefault(r => r.Id.Equals(id));
             int kingdomId = resource.KingdomId;
             _db.Resources.Remove(resource);
@@ -182,6 +235,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("delete/building/{id}")]
         public IActionResult DeleteBuilding(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Building building = _db.Buildings.FirstOrDefault(b => b.Id.Equals(id));
             int kingdomId = building.KingdomId;
             _db.Buildings.Remove(building);
@@ -192,6 +250,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("delete/army/{id}")]
         public IActionResult DeleteArmy(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Army army = _db.Armies.FirstOrDefault(a => a.Id.Equals(id));
             int kingdomId = army.KingdomId;
             try
@@ -209,6 +272,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("delete/kingdom/{id}")]
         public IActionResult DeleteKingdom(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Kingdom kingdom = _db.Kingdoms.FirstOrDefault(k => k.Id.Equals(id));
             _db.Kingdoms.Remove(kingdom);
             _db.SaveChanges();
@@ -218,6 +286,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpPost("kingdom/create/{id}")]
         public IActionResult CreateKingdom(int id, string name, int worldId)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             if (worldId == 0)
             {
                 Random rand = new Random();
@@ -233,6 +306,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("worlds/show/{id}")]
         public IActionResult ShowWorldByID(int id)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             List<Location> locations = _db.Locations.Include(l => l.Kingdom).Where(l => l.WorldId == id).ToList();
             ViewBag.WorldId = id;
             return View(locations);
@@ -241,6 +319,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpPost("set/resource/{id}/{kingdomId}")]
         public IActionResult SetResourceByID(int id, int kingdomId, int amount)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Resource resource = _db.Resources.FirstOrDefault(r => r.Id.Equals(id));
             resource.Amount = amount;
             _db.Resources.Update(resource);
@@ -251,6 +334,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpPost("create/building/{kingdomId}")]
         public IActionResult CreateBuilding(int kingdomId, int buildingId)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Building building;
             if (buildingId == 0) building = _buildingFactory.CreateTownHall();
             else building = _buildingService.CreateRightBuilding(buildingId);
@@ -263,6 +351,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("soldier/add/{kingdomId}")]
         public IActionResult AddSoldierToKingdomById(int kingdomId)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             var soldier = _resourceFactory.GetSoldierResource();
             soldier.KingdomId = kingdomId;
             List<int> armyIds = new();
@@ -284,6 +377,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("army/add/{kingdomId}")]
         public IActionResult AddArmyToKingdomById(int kingdomId)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Army army = new();
             army.KingdomId = kingdomId;
             _db.Armies.Add(army);
@@ -294,6 +392,11 @@ namespace Eucyon_Tribes.Controllers
         [HttpGet("delete/soldier/{id}/{kingdomId}")]
         public IActionResult DeleteSoldierById(int id, int kingdomId)
         {
+            int userId = _authService.CheckJWTCookieValidityReturnsUserId(HttpContext.Request.Cookies);
+            if (userId == -1) return Unauthorized(unauthorized);
+            User user = _db.Users.FirstOrDefault(u => u.Id.Equals(userId));
+            if (user == null) return Unauthorized(unauthorized);
+            if (user.Role != "Admin") return Unauthorized(unauthorized);
             Soldier soldier = _db.Resources.Cast<Soldier>().FirstOrDefault(s => s.Id.Equals(id));
             var armyId = soldier.ArmyId;
             _db.Resources.Remove(soldier);
