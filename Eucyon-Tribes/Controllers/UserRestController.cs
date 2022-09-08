@@ -182,5 +182,17 @@ namespace Eucyon_Tribes.Controllers
                 return Ok(new StatusDTO("User ID: " + id + " has been updated successfully"));
             }
         }
+        [AllowAnonymous]
+        [Authorize(Roles = "admin")]
+        [HttpPatch("encrypt_passwords")]
+        public ActionResult EncryptPasswords()
+        {
+            ResponseObject response = _userService.EncryptPasswords();
+            if (response.StatusCode != 200)
+            {
+                return StatusCode(response.StatusCode, new { error = response.Message });
+            }
+            return StatusCode(response.StatusCode, new { status = response.Message });
+        }
     }
 }

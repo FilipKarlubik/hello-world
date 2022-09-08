@@ -49,7 +49,7 @@ namespace Tribes.Tests.UserTests
             var user1 = new User()
             {
                 Name = "Matilda",
-                PasswordHash = "m",
+                PasswordHash = Hash.EncryptPassword("m"),
                 Email = "matilda@gmail.com",
                 VerifiedAt = DateTime.Now,
                 VerificationToken = "",
@@ -60,7 +60,7 @@ namespace Tribes.Tests.UserTests
             var user2 = new User()
             {
                 Name = "Klotilda",
-                PasswordHash = "k",
+                PasswordHash = Hash.EncryptPassword("k"),
                 Email = "klotilda@gmail.com",
                 VerifiedAt = DateTime.Now,
                 VerificationToken = "",
